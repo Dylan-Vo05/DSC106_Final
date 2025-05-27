@@ -1,3 +1,13 @@
+body {
+    --color-accent: oklch(65% 50% 0);
+    font: 100%/1.5 system-ui;
+    display: block;
+    max-width: 125ch;
+    margin-inline: max(1em, (100% - 125ch) / 2);
+    padding: 10px;
+    accent-color: var(--color-accent);
+  }
+
 dl.info {
   /* ... other styles ... */
   transition-duration: 500ms;
@@ -25,4 +35,68 @@ dl.info[hidden]:not(:hover, :focus-within) {
   position: fixed;
   top: 1em;
   left: 1em;
+}
+
+#demo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+#demo label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.predispose {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  text-align: center;
+  margin-top: 1rem; 
+  margin-right: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.predispose dt,
+.predispose dd {
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.predispose dt {
+  font-weight: bold;
+}
+
+.predispose dd {
+  font-size: 1.25rem;
+}
+
+.preop {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  text-align: center;
+  margin-top: 1rem; 
+  margin-right: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.preop dt,
+.preop dd {
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.preop dt {
+  font-weight: bold;
+}
+
+.preop dd {
+  font-size: 1.25rem;
 }

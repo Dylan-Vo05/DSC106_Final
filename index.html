@@ -13,6 +13,16 @@
     <h1>DSC106 Final Project</h1>
   </header>
 
+  <h2>Select your demographics</h2>
+  <div id="demo">
+    <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
+    <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
+
+    <label>Age: <input type="number" min = '0' id="age"></label>
+    <label>Height: <input type="number" min = '0' id="height"></label>
+    <label>Weight: <input type="number" min = '0' id="weight"></label>
+  </div>
+
   <main>
     <div id="viz"></div>
   </main>
@@ -22,6 +32,12 @@
     <dt id="hours-label">Hours</dt>
     <dd id="hours"></dd>
   </dl>
+
+  <h2>Based on your selection, how likely are you to have...?</h2>
+    <div id="predispose"></div>
+
+  <h2>What are your typical preoperative levels of...?</h2>
+    <div id="preop"></div>
 
   <script src="global.js"></script>
 </body>

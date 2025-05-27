@@ -1,0 +1,28 @@
+dl.info {
+  /* ... other styles ... */
+  transition-duration: 500ms;
+  transition-property: opacity, visibility;
+}
+
+dl.info[hidden]:not(:hover, :focus-within) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#duration-tooltip {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5%;
+  backdrop-filter: blur(10px) saturate(1.5);
+  padding: 1rem;
+}
+
+.rect-duration:hover {
+    fill: #EAD6EA;
+}
+
+.tooltip {
+  position: fixed;
+  top: 1em;
+  left: 1em;
+}

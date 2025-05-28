@@ -15,12 +15,13 @@ d3.csv("cases.txt").then(function(data) {
     opstart: +d.opstart,
     opend: +d.opend,
   }));
-  console.log(data);
+
   let age = -1;
   let height = -1;
   let weight = -1;
 
     // D3 visualization code goes here
+  showCount(cleaned);
   renderOperationDuration(cleaned);
   renderPrediposeInfo(cleaned);
   renderPreopInfo(cleaned);
@@ -65,9 +66,9 @@ d3.csv("cases.txt").then(function(data) {
 
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
-    const ageRange = d3.extent(data, d => d.age);
-    const heightRange = d3.extent(data, d => d.height);
-    const weightRange = d3.extent(data, d => d.weight);
+    const ageRange = d3.extent(cleaned, d => d.age);
+    const heightRange = d3.extent(cleaned, d => d.height);
+    const weightRange = d3.extent(cleaned, d => d.weight);
     
     if (checkMale) {
       filteredData = filteredData.filter(d => d.sex === 'M');
@@ -96,11 +97,10 @@ d3.csv("cases.txt").then(function(data) {
         +d.weight <= weight + 0.05 * (weightRange[1] - weightRange[0])
       );
     }
-
-    
   
     console.log("Filtered data length:", filteredData.length);
 
+    showCount(filteredData);
     renderOperationDuration(filteredData);
     renderPrediposeInfo(filteredData);
     renderPreopInfo(filteredData);
@@ -254,4 +254,7 @@ d3.csv("cases.txt").then(function(data) {
     tooltip.style.top = `${event.clientY}px`;
   }
 
+  function showCount(data) {
+    const dl = d3.select('#case_count').text(data.length)
+  }
 });

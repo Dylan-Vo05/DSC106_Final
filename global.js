@@ -1,5 +1,20 @@
 d3.csv("cases.txt").then(function(data) {
-  cleaned = data.filter(d => +d.aneend >= +d.anestart)
+  cleaned = data.filter(d => +d.aneend >= +d.anestart).map(d => ({
+    ...d,
+    age: +d.age,
+    height: +d.height,
+    weight: +d.weight,
+    preop_hb: +d.preop_hb,
+    preop_plt: +d.preop_plt,
+    preop_ph: +d.preop_ph,
+    preop_gluc: +d.preop_gluc,
+    preop_na: +d.preop_na,
+    preop_k: +d.preop_k,
+    preop_htn: +d.preop_htn,
+    preop_dm: +d.preop_dm,
+    opstart: +d.opstart,
+    opend: +d.opend,
+  }));
   console.log(data);
   let age = -1;
   let height = -1;
@@ -40,8 +55,13 @@ d3.csv("cases.txt").then(function(data) {
   });
 
   function updateFilter(){
+    console.log("filter updated");
+
+    d3.select("#opduration_vis").selectAll("*").remove();
+    d3.select("#predispose").selectAll("*").remove();
+    d3.select("#preop").selectAll("*").remove();
     
-    let filteredData = data;
+    let filteredData = cleaned;
 
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
@@ -56,17 +76,30 @@ d3.csv("cases.txt").then(function(data) {
       filteredData = filteredData.filter(d => d.sex === 'F');
     }
     
-    if (!isNaN(age) || age > -1){
-      filteredData = filteredData.filter(d => +d.age >= (age - 0.05 * ageRange) && +d.age <= (age + 0.05 * ageRange));
+    if (!isNaN(age) && age > -1) {
+      filteredData = filteredData.filter(d =>
+        +d.age >= age - 0.05 * (ageRange[1] - ageRange[0]) &&
+        +d.age <= age + 0.05 * (ageRange[1] - ageRange[0])
+      );
+    }
+  
+    if (!isNaN(height) && height > -1) {
+      filteredData = filteredData.filter(d =>
+        +d.height >= height - 0.05 * (heightRange[1] - heightRange[0]) &&
+        +d.height <= height + 0.05 * (heightRange[1] - heightRange[0])
+      );
+    }
+  
+    if (!isNaN(weight) && weight > -1) {
+      filteredData = filteredData.filter(d =>
+        +d.weight >= weight - 0.05 * (weightRange[1] - weightRange[0]) &&
+        +d.weight <= weight + 0.05 * (weightRange[1] - weightRange[0])
+      );
     }
 
-    if (!isNaN(height) || height > -1){
-      filteredData = filteredData.filter(d => +d.height >= (height - 0.05 * heightRange) && +d.height <= (height + 0.05 * heightRange));
-    }
-
-    if (!isNaN(weight) || weight > -1){
-      filteredData = filteredData.filter(d => +d.weight >= (weight - 0.05 * weightRange) && +d.weight <= (weight + 0.05 * weightRange));
-    }
+    
+  
+    console.log("Filtered data length:", filteredData.length);
 
     renderOperationDuration(filteredData);
     renderPrediposeInfo(filteredData);
@@ -168,7 +201,7 @@ d3.csv("cases.txt").then(function(data) {
 
     function renderTooltipContent(data) {
     const hours = document.getElementById('hours');
-    hours.textContent = data[1].toFixed(2);
+    hours.textContent = safeToFixed(data[1]);
   }
 
   function renderPrediposeInfo(data) {
@@ -176,10 +209,17 @@ d3.csv("cases.txt").then(function(data) {
     const dl = d3.select('#predispose').append('dl').attr('class', 'predispose');
 
     dl.append('dt').html('Hypertension');
-    dl.append('dd').text((d3.mean(data, d => d.preop_htn) * 100).toFixed(2)  + ' %');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_htn) * 100)  + ' %');
     
     dl.append('dt').html('Diabetes');
-    dl.append('dd').text((d3.mean(data, d => d.preop_dm) * 100).toFixed(2)  + ' %');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_dm) * 100)  + ' %');
+  }
+
+  function safeToFixed(value, digits = 2) {
+    if (value === undefined || value === null || isNaN(value)) {
+      return "N/A";
+    }
+    return value.toFixed(digits);
   }
 
   function renderPreopInfo(data) {
@@ -190,17 +230,17 @@ d3.csv("cases.txt").then(function(data) {
     dl.append('dt').html('Platelets');
     dl.append('dt').html('pH');
 
-    dl.append('dd').text((d3.mean(data, d => d.preop_hb)).toFixed(2)  + ' g/dl');
-    dl.append('dd').text((d3.mean(data, d => d.preop_plt)).toFixed(2)  + ' x1000/mcL');
-    dl.append('dd').text((d3.mean(data, d => d.preop_ph)).toFixed(2));
+    dl.append('dd').text(safeToFixed(d3.mean(data, d=> d.preop_hb))  + ' g/dl');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_plt))  + ' x1000/mcL');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_ph)));
 
     dl.append('dt').html('Glucose');
     dl.append('dt').html('Sodium');
     dl.append('dt').html('Potassium');
 
-    dl.append('dd').text((d3.mean(data, d => d.preop_gluc)).toFixed(2)  + ' mg/dl');
-    dl.append('dd').text((d3.mean(data, d => d.preop_na)).toFixed(2)  + ' mmol/L');
-    dl.append('dd').text((d3.mean(data, d => d.preop_k)).toFixed(2) + ' mmol/L');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_gluc))  + ' mg/dl');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_na))  + ' mmol/L');
+    dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_k)) + ' mmol/L');
   }
 
   function updateTooltipVisibility(isVisible) {

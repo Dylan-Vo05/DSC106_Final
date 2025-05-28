@@ -14,8 +14,11 @@ d3.csv("cases.txt").then(function(data) {
     preop_dm: +d.preop_dm,
     opstart: +d.opstart,
     opend: +d.opend,
+
   }));
   console.log(data);
+  console.log(cleaned.map(d => typeof d.height));
+
   let age = -1;
   let height = -1;
   let weight = -1;
@@ -66,7 +69,7 @@ d3.csv("cases.txt").then(function(data) {
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
     const ageRange = d3.extent(data, d => d.age);
-    const heightRange = d3.extent(data, d => d.height);
+    const heightRange = d3.extent(cleaned, d => d.height);
     const weightRange = d3.extent(data, d => d.weight);
     
     if (checkMale) {

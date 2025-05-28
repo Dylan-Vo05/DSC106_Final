@@ -14,6 +14,7 @@ d3.csv("cases.txt").then(function(data) {
     preop_dm: +d.preop_dm,
     opstart: +d.opstart,
     opend: +d.opend,
+
   }));
 
   let age = -1;

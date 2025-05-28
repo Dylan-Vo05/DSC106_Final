@@ -63,6 +63,7 @@ d3.csv("cases.txt").then(function(data) {
     d3.select("#opduration_vis").selectAll("*").remove();
     d3.select("#predispose").selectAll("*").remove();
     d3.select("#preop").selectAll("*").remove();
+    d3.select("#aneduration_vis").selectAll("*").remove();
     
     let filteredData = cleaned;
 

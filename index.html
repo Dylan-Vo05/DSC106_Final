@@ -9,6 +9,19 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+  <!-- intro -->
+  <div id="intro-container">
+    <div id="intro-screen">
+    <h1 style="margin: 0;"> 
+      <div class='line' style="animation-delay: 0s;">"We are giving you something to help you breathe.</div>
+      <div class='line' style="animation-delay: 2s;">You may feel something warm in your arm."</div>
+      <div class='line' style="animation-delay: 4s;">Now, count backwards from 1000 to 1.</div>
+      <div class='line' style="animation-delay: 6s;">1000... 999... 998...</div>
+      <div class='line' style="animation-delay: 9s;"> Oops, are you asleep? Wake up! </div></h1>
+    <p class='line' style="margin-top: 0.5em; animation-delay: 11s">Click anywhere to enter</p>
+    </div>
+</div>
+
   <header>
     <h1>DSC106 Final Project</h1>
   </header>
@@ -18,7 +31,7 @@
     <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
     <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
 
-    <label>Age (yrs): <input type="number" min = '0' id="age"></label>
+    <label>Age (years): <input type="number" min = '0' id="age"></label>
     <label>Height (cm): <input type="number" min = '0' id="height"></label>
     <label>Weight (kg): <input type="number" min = '0' id="weight"></label>
   </div>
@@ -35,7 +48,7 @@
     <dd id="hours"></dd>
   </dl>
 
-  <h2> How Long Does Are You Under Anesthesia?</h2>
+  <h2> How Long Are You Under Anesthesia?</h2>
     <div id="aneduration_vis"></div>
     <dl id="duration-tooltip" class="info tooltip" hidden>
       <dt id="hours-label">Hours</dt>
@@ -49,5 +62,20 @@
     <div id="preop"></div>
 
   <script src="global.js"></script>
+
+  <script> 
+  // CODE FOR INTRO + Enter on Click
+      const container = document.getElementById('intro-container');
+      const screen = document.getElementById('intro-screen')
+
+      //waits for user to click to hide intro
+      screen.addEventListener('click', () => {
+        // Optional fade-out effect
+        screen.style.opacity = 0;
+        setTimeout(() => {
+          container.style.display = 'none';
+        }, 500); // Match transition duration
+      });
+    </script>
 </body>
 </html>

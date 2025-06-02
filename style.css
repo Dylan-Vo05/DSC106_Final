@@ -128,6 +128,9 @@ dl.info[hidden]:not(:hover, :focus-within) {
 .line {
       opacity: 0;
       animation: fadeIn 0.8s ease forwards;
+      text-align: center;
+      padding-left: 5%;
+      padding-right: 5%;
     }
 
     /* Fade-in keyframe */

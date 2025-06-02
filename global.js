@@ -203,9 +203,10 @@ Promise.all([
       .join("rect")
       .attr("class", "rect-duration")
       .attr("x", d => xScale(d[0]))
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(0) - yScale(d[1]))
+      .attr("y", height - margin.bottom)
+      .attr("height", 0)
       .attr("width", xScale.bandwidth())
+      .style("opacity", 0) // set bars invisible for animation
       .on('mouseenter', (event, d) => {
         renderTooltipInfo(d, surgeryDescriptions);
         updateTooltipVisibility(true);
@@ -213,7 +214,12 @@ Promise.all([
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
-      });
+      })
+      .transition() // animate new bars
+      .duration(500) // animation duration
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(0) - yScale(d[1]))
+      .style("opacity", 1);
 
       // Create the axes
     const xAxis = d3.axisBottom(xScale);
@@ -309,9 +315,10 @@ Promise.all([
       .join("rect")
       .attr("class", "rect-duration")
       .attr("x", d => xScale(d[0]))
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(0) - yScale(d[1]))
+      .attr("y", height - margin.bottom)
+      .attr("height", 0)
       .attr("width", xScale.bandwidth())
+      .style("opacity", 0) // set bars invisible for animation
       .on('mouseenter', (event, d) => {
         renderTooltipInfo(d, aneDescriptions);
         updateTooltipVisibility(true);
@@ -319,7 +326,12 @@ Promise.all([
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
-      });
+      })
+      .transition() // animate new bars
+      .duration(500) // animation duration
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(0) - yScale(d[1]))
+      .style("opacity", 1);
 
       // Create the axes
     const xAxis = d3.axisBottom(xScale);

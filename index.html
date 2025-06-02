@@ -38,6 +38,8 @@
 
   <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
 
+  <h1>First, let's go through Postoperative Information</h1>
+
   <main>
     <div id="viz"></div>
   </main>
@@ -45,14 +47,14 @@
   <div id="opduration_vis"></div>
   <dl id="duration-tooltip" class="info tooltip" hidden>
     <dt id="hours-label">Hours</dt>
-    <dd id="hours"></dd>
+    <dd id="info"></dd>
   </dl>
 
   <h2> How Long Are You Under Anesthesia?</h2>
     <div id="aneduration_vis"></div>
     <dl id="duration-tooltip" class="info tooltip" hidden>
       <dt id="hours-label">Hours</dt>
-      <dd id="hours"></dd>
+      <dd id="info"></dd>
   </dl>
 
   <h2>Based on your selection, how likely are you to have...?</h2>
@@ -60,6 +62,35 @@
 
   <h2>What are your typical preoperative levels of...?</h2>
     <div id="preop"></div>
+
+  <h1>Next, let's view some Interoperative Statistics</h1>
+
+  <label>Pick a kind of surgery </label>
+  <select id = 'surgery-drop'>
+    <option value = 'Colorectal'>Colorectal</option>
+    <option value = 'Stomach'>Stomach</option>
+    <option value = 'Biliary/Pancreas'>Biliary/Pancreas</option>
+    <option value = 'Vascular'>Vascular</option>
+    <option value = 'Major resection'>Major resection</option>
+    <option value = 'Breast'>Breast</option>
+    <option value = 'Minor resection'>Minor resection</option>
+    <option value = 'Transplantation'>Transplantation</option>
+    <option value = 'Hepatic'>Hepatic</option>
+    <option value = 'Thyroid'>Thyroid</option>
+    <option value = 'Others'>Others</option>
+  </select>
+  <label> and what you would like to see </label>
+  <select id = 'interop-type'>
+    <option value = 'Cell Count'>Cell Count</option>
+    <option value = 'Metabolite Levels'>Metabolite Levels</option>
+    <option value = 'Electrolyte Levels'>Electrolyte Levels</option>
+  </select>
+
+  <div id = 'interop_vis'></div>
+
+  <h1>Lastly, lets look at some Postoperative Data</h1>
+
+
 
   <script src="global.js"></script>
 

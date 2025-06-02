@@ -136,3 +136,7 @@ dl.info[hidden]:not(:hover, :focus-within) {
         opacity: 1;
       }
     }
+
+#info {
+  max-width: 500px;
+}

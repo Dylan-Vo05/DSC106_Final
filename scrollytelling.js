@@ -35,15 +35,10 @@ function createPreOpViz() {
      .text('Pre-Op Assessment')
      .style('text-align', 'center');
   
+  viz.append('h4')
+    .text('Based on your selection, how likely are you to have...?');
   viz.append('div')
-     .style('width', '80%')
-     .style('height', '60%')
-     .style('margin', '0 auto')
-     .style('background', '#ddd')
-     .style('display', 'flex')
-     .style('align-items', 'center')
-     .style('justify-content', 'center')
-     .html('Pre-Op Visualization<br>(Placeholder)');
+    .attr('id','predispose');
 }
 
 function createSurgeryViz() {

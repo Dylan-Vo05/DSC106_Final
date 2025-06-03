@@ -20,7 +20,7 @@
     <!-- <h2>Understanding Your Surgery Experience</h2> -->
     <p>Every surgery has a story. From when a patient walks in, to what happens in the OR, to how they recover afterward.</p>
     <p>With data from over 6,000 real surgeries, we break down what happens at each step: admission, prep, the operation itself, and recovery. We show you how different factors like age, gender, and health status affect the experience and what different types of surgeries people undergo.</p>
-    <p>Scroll down to explore the full experience and see what the numbers reveal about what really happens during surgery.</p>
+    <p>Scroll down to explore the full experience and see what the numbers reveal about what really happens during surgery. Use the filters in the bottom right to find cases from patients similar to you.</p>
     <div id="body-container">
       <img src="outline_body.png" id="body-img" />
       <canvas id="overlay"></canvas>
@@ -35,10 +35,19 @@
       <div id="demo" class="filter-options">
         <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
         <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
-        <label>Age (yrs): <input type="number" min = '0' id="age"></label>
-        <label>Height (cm): <input type="number" min = '0' id="height"></label>
-        <label>Weight (kg): <input type="number" min = '0' id="weight"></label>
+        <label>Age: <input type="range" min="0" max="100" id="age" value="25">
+          <span class="value-display" id="age-value">25 years</span>
+        </label>
+
+        <label>Height: <input type="range" min="50" max="250" id="height" value="170">
+          <span class="value-display" id="height-value">170 cm</span>
+        </label>
+
+        <label>Weight: <input type="range" min="30" max="200" id="weight" value="70">
+          <span class="value-display" id="weight-value">70 kgs</span>
+        </label>
       </div>
+      <h5>There are <label id = 'case_count'></label> similar cases to yours.</h5>
     </div>
     <button class="filter-toggle" id="filterToggle">
       <i class="fas fa-filter"></i>
@@ -108,7 +117,7 @@
     <main>
       <div id="viz"></div>
     </main>
-    <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
+    
     <h2>How Long Does Your Surgery Take?</h2>
     <div id="opduration_vis"></div>
     <dl id="duration-tooltip" class="info tooltip" hidden>
@@ -123,12 +132,37 @@
       <dd id="hours"></dd>
     </dl>
 
-    <h2>Based on your selection, how likely are you to have...?</h2>
-    <div id="predispose"></div>
-
     <h2>What are your typical preoperative levels of...?</h2>
     <div id="preop"></div>
-  </div>
+    
+    <h1>Next, let's view some Intraoperative Statistics</h1>More actions
+
+      <label>Pick a kind of surgery </label>
+      <select id = 'surgery-drop'>
+        <option value = 'Colorectal'>Colorectal</option>
+        <option value = 'Stomach'>Stomach</option>
+        <option value = 'Biliary/Pancreas'>Biliary/Pancreas</option>
+        <option value = 'Vascular'>Vascular</option>
+        <option value = 'Major resection'>Major resection</option>
+        <option value = 'Breast'>Breast</option>
+        <option value = 'Minor resection'>Minor resection</option>
+        <option value = 'Transplantation'>Transplantation</option>
+        <option value = 'Hepatic'>Hepatic</option>
+        <option value = 'Thyroid'>Thyroid</option>
+        <option value = 'Others'>Others</option>
+      </select>
+      <label> and what you would like to see </label>
+      <select id = 'intraop-type'>
+        <option value = 'Cell Count'>Cell Count</option>
+        <option value = 'Metabolite Levels'>Metabolite Levels</option>
+        <option value = 'Electrolyte Levels'>Electrolyte Levels</option>
+      </select>
+
+      <div id = 'interop_vis'></div>
+      <div id = 'intraop_vis'></div>
+      <div id = 'intraop-tooltip'></div>
+
+      </div>
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intersection-observer/0.12.0/intersection-observer.min.js"></script>

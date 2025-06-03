@@ -33,8 +33,24 @@ Promise.all([
   let height = -1;
   let weight = -1;
 
-  let interop_surgery = 'Colorectal';
-  let interop_type = 'Cell Count'
+  let intraop_surgery = 'Colorectal';
+  let intraop_type = 'Cell Count'
+
+  let ageRange = d3.extent(cleaned, d => d.age);
+  let heightRange = d3.extent(cleaned, d => d.height);
+  let weightRange = d3.extent(cleaned, d => d.weight);
+
+  d3.select("#age")
+  .attr("min", ageRange[0])
+  .attr("max", ageRange[1])
+
+  d3.select("#height")
+  .attr("min", heightRange[0])
+  .attr("max", heightRange[1])
+
+  d3.select("#weight")
+  .attr("min", weightRange[0])
+  .attr("max", weightRange[1])
 
     // D3 visualization code goes here
   showCount(cleaned);
@@ -42,7 +58,7 @@ Promise.all([
   renderAnesthesiaDuration(cleaned);
   renderPrediposeInfo(cleaned);
   renderPreopInfo(cleaned);
-  renderInterop(cleaned, interop_surgery, interop_type);
+  renderintraop(cleaned, intraop_surgery, intraop_type);
 
   d3.select("#toggle-male").on("change", function () {
     if (this.checked) {
@@ -59,28 +75,34 @@ Promise.all([
   });
 
   d3.select("#age").on("input", function () {
-    age = d3.select(this).property("valueAsNumber");
+    const value = d3.select(this).property("valueAsNumber");
+    d3.select("#age-value").text(value + ' years'); 
+    age = value;
     updateFilter();
   });
 
   d3.select("#height").on("input", function () {
-    height = d3.select(this).property("valueAsNumber");
+    const value = d3.select(this).property("valueAsNumber");
+    d3.select("#height-value").text(value + ' cm');  
+    height = value;
     updateFilter();
   });
 
   d3.select("#weight").on("input", function () {
-    weight = d3.select(this).property("valueAsNumber");
+    const value = d3.select(this).property("valueAsNumber");
+    d3.select("#weight-value").text(value + ' kgs');  
+    weight = value;
     updateFilter();
   });
 
   d3.select("#surgery-drop").on("input", function () {
-    interop_surgery = d3.select(this).property('value');
-    renderInterop(cleaned, interop_surgery, interop_type);
+    intraop_surgery = d3.select(this).property('value');
+    renderintraop(cleaned, intraop_surgery, intraop_type);
   });
 
-  d3.select("#interop-type").on("input", function () {
-    interop_type = d3.select(this).property('value');
-    renderInterop(cleaned, interop_surgery, interop_type);
+  d3.select("#intraop-type").on("input", function () {
+    intraop_type = d3.select(this).property('value');
+    renderintraop(cleaned, intraop_surgery, intraop_type);
   });
 
   function updateFilter(){
@@ -90,15 +112,13 @@ Promise.all([
     d3.select("#predispose").selectAll("*").remove();
     d3.select("#preop").selectAll("*").remove();
     d3.select("#aneduration_vis").selectAll("*").remove();
-    d3.select("#interop").selectAll("*").remove();
+    d3.select("#intraop").selectAll("*").remove();
     
     let filteredData = cleaned;
 
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
-    const ageRange = d3.extent(cleaned, d => d.age);
-    const heightRange = d3.extent(cleaned, d => d.height);
-    const weightRange = d3.extent(cleaned, d => d.weight);
+    
     
     if (checkMale) {
       filteredData = filteredData.filter(d => d.sex === 'M');
@@ -135,7 +155,7 @@ Promise.all([
     renderAnesthesiaDuration(filteredData)
     renderPrediposeInfo(filteredData);
     renderPreopInfo(filteredData);
-    renderInterop(filteredData, interop_surgery, interop_type);
+    renderintraop(filteredData, intraop_surgery, intraop_type);
   }
 
   function renderOperationDuration(data) {
@@ -417,25 +437,36 @@ Promise.all([
     const dl = d3.select('#case_count').text(data.length)
   }
 
-  function renderInterop(data, interop_surgery, interop_type) {
-    // 1. Filter relevant case IDs
-    const validCases = data.filter(d => d.optype === interop_surgery);
+  function renderintraop(data, intraop_surgery, intraop_type) {
+    const validCases = data.filter(d => d.optype === intraop_surgery);
     const validCaseIDs = new Set(validCases.map(d => +d.caseid));
-    let yval = d => +d.pct_change;  // default
+    let yval = d => +d.pct_change;
     let cols = [];
     let ylabel = 'Percentage Change (%)';
 
-    if (interop_type === 'Cell Count') {
+    const legendNames = {
+      wbc: ["White Blood Cells", "Immune cells that help fight infections. High levels may indicate infection, inflammation, or stress, while low levels can indicate bone marrow issues or immunodeficiency"],
+      plt: ["Platelets", "Cell fragments involved in clotting. Low counts increase bleeding risk and high levels may increase stroke risk or suggest inflammation"],
+      na: ["Sodium", "Regulates fluid balance and nerve communication. Abnormal levels can cause neurological symptoms and are due to improper hydration"],
+      k: ["Potassium", "Critical for heart rhythm, nerve signals, and muscle function. Extremes can lead to dangerous cardiac arrhythmias"],
+      ica: ["Ionized Calcium", "Biologically active form of calcium, important for muscle contractions, blood clotting, and nerve function. More important than total calcium in critical care environments"],
+      cl: ["Chloride", "Helps maintain fluid balance, pH, and is often interpreted alongside sodium and bicarbonate in metabolic assessments"],
+      hb: ["Hemoglobin", "Protein in red blood cells that carries oxygen. Low levels (anemia) reduce oxygen delivery; high levels may suggest chronic hypoxia or polycythemia"],
+      gluc: ["Glucose", "Blood sugar level. High levels can indicate diabetes or stress, with low levels (hypoglycemia) causing confusion, seizures, or coma"],
+      tprot: ["Total Protein", "Sum of albumin and globulins in the blood. Reflects nutritional status, liver function, and immune activity"],
+      ammo: ["Ammonia", "Waste product processed by the liver. High levels may indicate liver dysfunction or inborn metabolic disorders and can lead to encephalopathy"]
+    };
+
+    if (intraop_type === 'Cell Count') {
       cols = ['wbc', 'plt'];
       ylabel = 'Count (x1000/mcL)';
       yval = d => +d.result;
-    } else if (interop_type === 'Electrolyte Levels') {
+    } else if (intraop_type === 'Electrolyte Levels') {
       cols = ['na', 'k', 'ica', 'cl'];
-    } else if (interop_type === 'Metabolite Levels') {
+    } else if (intraop_type === 'Metabolite Levels') {
       cols = ['hb', 'gluc', 'tprot', 'ammo'];
     }
 
-    // 2. Filter lab data by matching caseids and test names
     const filtered = labs
       .filter(d =>
         validCaseIDs.has(d.caseid) &&
@@ -451,10 +482,7 @@ Promise.all([
         result: +d.result
       }));
 
-    // 3b. Group by test name and hour
     const groupedByNameAndHour = d3.group(filtered, d => d.name, d => d.hour);
-
-    // 3c. Compute median per test per hour
     const medianData = new Map();
 
     for (const [name, hoursMap] of groupedByNameAndHour.entries()) {
@@ -468,12 +496,11 @@ Promise.all([
       medianData.set(name, medianPoints);
     }
 
-    // 4. SVG setup
-    const width = 800, height = 400;
+    const width = 1075, height = 400;
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
-    d3.select("#interop_vis").selectAll("*").remove();
-    const svg = d3.select("#interop_vis")
+    d3.select("#intraop_vis").selectAll("*").remove();
+    const svg = d3.select("#intraop_vis")
       .append("svg")
       .attr("width", width)
       .attr("height", height);
@@ -483,7 +510,7 @@ Promise.all([
       .range([margin.left, width - margin.right]);
 
     const values = filtered.map(yval).sort(d3.ascending);
-    const lower = 0
+    const lower = 0;
     const upper = d3.quantile(values, 0.99);
 
     const y = d3.scaleLinear()
@@ -495,25 +522,53 @@ Promise.all([
       .domain(cols)
       .range(d3.schemeTableau10);
 
-    const line = d3.line()
-      .x(d => x(d.hour))
-      .y(d => y(yval(d)));
+    const tooltip = d3.select("#intraop-tooltip");
 
-    // 5. Plot lines for each lab test
-    svg.selectAll(".line")
+    // Dedicated group for lines
+    const lineLayer = svg.append("g").attr("id", "lines");
+
+    // Plot lines and interactivity
+    lineLayer.selectAll(".line")
       .data(Array.from(medianData.entries()))
       .join("path")
+      .attr("class", "line")
       .attr("fill", "none")
       .attr("stroke", ([name]) => color(name))
       .attr("stroke-width", 1.8)
+      .attr("opacity", 1)
       .attr("d", ([, points]) =>
         d3.line()
           .x(d => x(d.hour))
-          .y(d => y(d.medianVal))
-          (points)
-      );
+          .y(d => y(d.medianVal))(points)
+      )
+      .on("mouseenter", function (event, [name]) {
+        lineLayer.selectAll(".line")
+          .classed("dimmed", true)
+          .classed("highlighted", false);
 
-    // 6. Axes
+        d3.select(this)
+          .classed("dimmed", false)
+          .classed("highlighted", true)
+          .raise();
+
+        tooltip
+          .html(`<strong>${legendNames[name][0]}</strong><br>${legendNames[name][1]}`)
+          .style("visibility", "visible");
+      })
+      .on("mousemove", function (event) {
+        tooltip
+          .style("top", (event.pageY + 15) + "px")
+          .style("left", (event.pageX + 15) + "px");
+      })
+      .on("mouseleave", function () {
+        lineLayer.selectAll(".line")
+          .classed("dimmed", false)
+          .classed("highlighted", false);
+
+        tooltip.style("visibility", "hidden");
+      });
+
+    // Axes
     svg.append("g")
       .attr("transform", `translate(0, ${height - margin.bottom})`)
       .call(d3.axisBottom(x))
@@ -535,12 +590,27 @@ Promise.all([
       .attr("text-anchor", "middle")
       .text(ylabel);
 
-    const legend = svg.append("g")
-      .attr("transform", `translate(${width - margin.right - 120}, ${margin.top})`);
-
+    // Final legend layer on top
     const legendItemHeight = 20;
+    const legendBoxPadding = 10;
 
-    legend.selectAll("rect")
+    const legendLayer = svg.append("g")
+      .attr("id", "legend-layer")
+      .attr("transform", `translate(${width - margin.right - 150}, ${margin.top})`)
+      .style("pointer-events", "none"); // Avoid blocking line interaction
+
+    // Legend background
+    legendLayer.append("rect")
+      .attr("x", -legendBoxPadding)
+      .attr("y", -legendBoxPadding)
+      .attr("width", 140)
+      .attr("height", cols.length * legendItemHeight + legendBoxPadding * 2)
+      .attr("fill", "#f0f0f0")
+      .attr("stroke", "#ccc")
+      .attr("rx", 6);
+
+    // Legend color squares
+    legendLayer.selectAll("legend-color")
       .data(cols)
       .join("rect")
       .attr("x", 0)
@@ -549,15 +619,18 @@ Promise.all([
       .attr("height", 18)
       .attr("fill", d => color(d));
 
-    legend.selectAll("text")
+    // Legend labels
+    legendLayer.selectAll("legend-text")
       .data(cols)
       .join("text")
       .attr("x", 24)
       .attr("y", (d, i) => i * legendItemHeight + 14)
-      .text(d => d)
+      .text(d => legendNames[d][0])
       .attr("font-size", 12)
       .attr("fill", "black");
   }
+
+
 
 
 });

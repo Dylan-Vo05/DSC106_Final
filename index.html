@@ -25,15 +25,25 @@
     <h1>DSC106 Final Project</h1>
   </header>
 
+  <div class="top-bar">
   <h2>Select your demographics</h2>
   <div id="demo">
-    <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
-    <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
+    <label><input type="checkbox" id="toggle-male"> Male</label>
+    <label><input type="checkbox" id="toggle-female"> Female</label>
 
-    <label>Age (years): <input type="number" min = '0' id="age"></label>
-    <label>Height (cm): <input type="number" min = '0' id="height"></label>
-    <label>Weight (kg): <input type="number" min = '0' id="weight"></label>
+    <label>Age: <input type="range" min="0" max="100" id="age" value="25">
+      <span class="value-display" id="age-value">25 years</span>
+    </label>
+
+    <label>Height: <input type="range" min="50" max="250" id="height" value="170">
+      <span class="value-display" id="height-value">170 cm</span>
+    </label>
+
+    <label>Weight: <input type="range" min="30" max="200" id="weight" value="70">
+      <span class="value-display" id="weight-value">70 kgs</span>
+    </label>
   </div>
+</div>
 
   <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
 
@@ -79,13 +89,14 @@
     <option value = 'Others'>Others</option>
   </select>
   <label> and what you would like to see </label>
-  <select id = 'interop-type'>
+  <select id = 'intraop-type'>
     <option value = 'Cell Count'>Cell Count</option>
     <option value = 'Metabolite Levels'>Metabolite Levels</option>
     <option value = 'Electrolyte Levels'>Electrolyte Levels</option>
   </select>
 
-  <div id = 'interop_vis'></div>
+  <div id = 'intraop_vis'></div>
+  <div id = 'intraop-tooltip'></div>
 
   <h1>Lastly, lets look at some Postoperative Data</h1>
 

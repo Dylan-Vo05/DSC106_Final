@@ -1,9 +1,5 @@
-Promise.all([
-  d3.csv('cases.txt'),
-  d3.csv('clean_lab.csv')
-])
-.then(function([data1, data2]) {
-  cleaned = data1.filter(d => +d.aneend >= +d.anestart).map(d => ({
+d3.csv("cases.txt").then(function(data) {
+  cleaned = data.filter(d => +d.aneend >= +d.anestart).map(d => ({
     ...d,
     age: +d.age,
     height: +d.height,
@@ -18,39 +14,12 @@ Promise.all([
     preop_dm: +d.preop_dm,
     opstart: +d.opstart,
     opend: +d.opend,
-  }));
 
-  labs = data2.map(d => ({
-    ...d,
-    caseid: +d.caseid,
-    dt: +d.dt,
-    result: +d.result,
-    hour: +d.hour,
-    pct_change: +d.pct_change
-  }))
+  }));
 
   let age = -1;
   let height = -1;
   let weight = -1;
-
-  let intraop_surgery = 'Colorectal';
-  let intraop_type = 'Cell Count'
-
-  let ageRange = d3.extent(cleaned, d => d.age);
-  let heightRange = d3.extent(cleaned, d => d.height);
-  let weightRange = d3.extent(cleaned, d => d.weight);
-
-  d3.select("#age")
-  .attr("min", ageRange[0])
-  .attr("max", ageRange[1])
-
-  d3.select("#height")
-  .attr("min", heightRange[0])
-  .attr("max", heightRange[1])
-
-  d3.select("#weight")
-  .attr("min", weightRange[0])
-  .attr("max", weightRange[1])
 
     // D3 visualization code goes here
   showCount(cleaned);
@@ -58,7 +27,6 @@ Promise.all([
   renderAnesthesiaDuration(cleaned);
   renderPrediposeInfo(cleaned);
   renderPreopInfo(cleaned);
-  renderintraop(cleaned, intraop_surgery, intraop_type);
 
   d3.select("#toggle-male").on("change", function () {
     if (this.checked) {
@@ -75,34 +43,18 @@ Promise.all([
   });
 
   d3.select("#age").on("input", function () {
-    const value = d3.select(this).property("valueAsNumber");
-    d3.select("#age-value").text(value + ' years'); 
-    age = value;
+    age = d3.select(this).property("valueAsNumber");
     updateFilter();
   });
 
   d3.select("#height").on("input", function () {
-    const value = d3.select(this).property("valueAsNumber");
-    d3.select("#height-value").text(value + ' cm');  
-    height = value;
+    height = d3.select(this).property("valueAsNumber");
     updateFilter();
   });
 
   d3.select("#weight").on("input", function () {
-    const value = d3.select(this).property("valueAsNumber");
-    d3.select("#weight-value").text(value + ' kgs');  
-    weight = value;
+    weight = d3.select(this).property("valueAsNumber");
     updateFilter();
-  });
-
-  d3.select("#surgery-drop").on("input", function () {
-    intraop_surgery = d3.select(this).property('value');
-    renderintraop(cleaned, intraop_surgery, intraop_type);
-  });
-
-  d3.select("#intraop-type").on("input", function () {
-    intraop_type = d3.select(this).property('value');
-    renderintraop(cleaned, intraop_surgery, intraop_type);
   });
 
   function updateFilter(){
@@ -112,13 +64,14 @@ Promise.all([
     d3.select("#predispose").selectAll("*").remove();
     d3.select("#preop").selectAll("*").remove();
     d3.select("#aneduration_vis").selectAll("*").remove();
-    d3.select("#intraop").selectAll("*").remove();
     
     let filteredData = cleaned;
 
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
-    
+    const ageRange = d3.extent(cleaned, d => d.age);
+    const heightRange = d3.extent(cleaned, d => d.height);
+    const weightRange = d3.extent(cleaned, d => d.weight);
     
     if (checkMale) {
       filteredData = filteredData.filter(d => d.sex === 'M');
@@ -155,7 +108,6 @@ Promise.all([
     renderAnesthesiaDuration(filteredData)
     renderPrediposeInfo(filteredData);
     renderPreopInfo(filteredData);
-    renderintraop(filteredData, intraop_surgery, intraop_type);
   }
 
   function renderOperationDuration(data) {
@@ -171,20 +123,6 @@ Promise.all([
 
     const width = 1000;
     const height = 250; 
-
-    const surgeryDescriptions = {
-      'Colorectal': "Focuses on treatment of the colon, rectum, and anus. Procedures range from polyp removal to cancer and inflammatory bowel disease treatment.",
-      'Stomach': "Involves surgical intervention on the stomach, often for ulcers, tumors, or weight-loss procedures such as gastrectomy or gastric bypass.",
-      'Biliary/Pancreas': "Covers operations on the bile ducts, gallbladder, and pancreas, typically for gallstones, pancreatitis, or tumors in the hepatobiliary system.",
-      'Vascular': "Treats disorders of the blood vessels, including procedures to repair aneurysms, clear blockages, or create access for dialysis.",
-      'Major resection': "Involves removal of large or complex tissue sections, in cases of advanced tumors or extensive disease in organs like the liver or intestines.",
-      'Breast': "Surgical treatment of breast conditions, including lumpectomy, mastectomy, or reconstruction, often related to cancer or benign tumors.",
-      'Minor resection': "Refers to smaller-scale removals of tissue, such as partial organ or lesion removal.",
-      'Transplantation': "Involves replacing a diseased organ with a healthy one from a donor, such as liver, kidney, or heart transplants.",
-      'Hepatic': "Targets diseases of the liver, such as resections for tumors, treatment for cirrhosis, or preparation for transplantation.",
-      'Thyroid': "Involves surgery on the thyroid gland, typically for nodules, cancer, or hyperthyroidism, ranging from lobectomy to full thyroidectomy.",
-      'Others': "Includes various procedures that do not fall into standard categories, often unique or highly specialized surgical cases."
-    };
 
     const svg = d3
       .select('#opduration_vis')
@@ -223,23 +161,17 @@ Promise.all([
       .join("rect")
       .attr("class", "rect-duration")
       .attr("x", d => xScale(d[0]))
-      .attr("y", height - margin.bottom)
-      .attr("height", 0)
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(0) - yScale(d[1]))
       .attr("width", xScale.bandwidth())
-      .style("opacity", 0) // set bars invisible for animation
       .on('mouseenter', (event, d) => {
-        renderTooltipInfo(d, surgeryDescriptions);
+        renderTooltipContent(d);
         updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
-      })
-      .transition() // animate new bars
-      .duration(500) // animation duration
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(0) - yScale(d[1]))
-      .style("opacity", 1);
+      });
 
       // Create the axes
     const xAxis = d3.axisBottom(xScale);
@@ -268,14 +200,12 @@ Promise.all([
         .attr("y", -usableArea.left + 10)
         .attr("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Avg Operation Duration (Hours)"); 
+        .text("Operation Duration (Hours)"); 
     }
 
-  function renderTooltipInfo(data, details) {
-    const info = document.getElementById('info');
-    info.innerHTML = `${safeToFixed(data[1])} <br>
-      ${details[data[0]]}
-    `;
+    function renderTooltipContent(data) {
+    const hours = document.getElementById('hours');
+    hours.textContent = safeToFixed(data[1]);
   }
 
   function renderAnesthesiaDuration(data) {
@@ -291,12 +221,6 @@ Promise.all([
 
     const width = 1000;
     const height = 250; 
-
-    const aneDescriptions = {
-      'General': 'Leaves patient unconscious and blocks pain throughout the body. Administered through inhalation or IV, typically requiring breathing support. Used for major surgeries',
-      'Spinal': 'Leaves patient awake, but blocks sensation below injection point (typically the lower back). Administered through injection into spinal fluid. Used for c-sections and lower body surgeries',
-      'Sedationalgesia': 'Leaves patient awake but in a relaxed state, with reduced pain sensation. Administered through IV. Used in minor surgery, like dental work or endoscopy'
-    }
 
     const svg = d3
       .select('#aneduration_vis')
@@ -335,23 +259,17 @@ Promise.all([
       .join("rect")
       .attr("class", "rect-duration")
       .attr("x", d => xScale(d[0]))
-      .attr("y", height - margin.bottom)
-      .attr("height", 0)
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(0) - yScale(d[1]))
       .attr("width", xScale.bandwidth())
-      .style("opacity", 0) // set bars invisible for animation
       .on('mouseenter', (event, d) => {
-        renderTooltipInfo(d, aneDescriptions);
+        renderTooltipContent(d);
         updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
-      })
-      .transition() // animate new bars
-      .duration(500) // animation duration
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(0) - yScale(d[1]))
-      .style("opacity", 1);
+      });
 
       // Create the axes
     const xAxis = d3.axisBottom(xScale);
@@ -380,9 +298,14 @@ Promise.all([
         .attr("y", -usableArea.left + 10)
         .attr("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Avg Anesthesia Duration (Hours)"); 
+        .text("Anesthesia Duration (Hours)"); 
+    }
+
+    function renderTooltipContent(data) {
+    const hours = document.getElementById('hours');
+    hours.textContent = safeToFixed(data[1]);
   }
-  
+
   function renderPrediposeInfo(data) {
 
     const dl = d3.select('#predispose').append('dl').attr('class', 'predispose');
@@ -436,201 +359,4 @@ Promise.all([
   function showCount(data) {
     const dl = d3.select('#case_count').text(data.length)
   }
-
-  function renderintraop(data, intraop_surgery, intraop_type) {
-    const validCases = data.filter(d => d.optype === intraop_surgery);
-    const validCaseIDs = new Set(validCases.map(d => +d.caseid));
-    let yval = d => +d.pct_change;
-    let cols = [];
-    let ylabel = 'Percentage Change (%)';
-
-    const legendNames = {
-      wbc: ["White Blood Cells", "Immune cells that help fight infections. High levels may indicate infection, inflammation, or stress, while low levels can indicate bone marrow issues or immunodeficiency"],
-      plt: ["Platelets", "Cell fragments involved in clotting. Low counts increase bleeding risk and high levels may increase stroke risk or suggest inflammation"],
-      na: ["Sodium", "Regulates fluid balance and nerve communication. Abnormal levels can cause neurological symptoms and are due to improper hydration"],
-      k: ["Potassium", "Critical for heart rhythm, nerve signals, and muscle function. Extremes can lead to dangerous cardiac arrhythmias"],
-      ica: ["Ionized Calcium", "Biologically active form of calcium, important for muscle contractions, blood clotting, and nerve function. More important than total calcium in critical care environments"],
-      cl: ["Chloride", "Helps maintain fluid balance, pH, and is often interpreted alongside sodium and bicarbonate in metabolic assessments"],
-      hb: ["Hemoglobin", "Protein in red blood cells that carries oxygen. Low levels (anemia) reduce oxygen delivery; high levels may suggest chronic hypoxia or polycythemia"],
-      gluc: ["Glucose", "Blood sugar level. High levels can indicate diabetes or stress, with low levels (hypoglycemia) causing confusion, seizures, or coma"],
-      tprot: ["Total Protein", "Sum of albumin and globulins in the blood. Reflects nutritional status, liver function, and immune activity"],
-      ammo: ["Ammonia", "Waste product processed by the liver. High levels may indicate liver dysfunction or inborn metabolic disorders and can lead to encephalopathy"]
-    };
-
-    if (intraop_type === 'Cell Count') {
-      cols = ['wbc', 'plt'];
-      ylabel = 'Count (x1000/mcL)';
-      yval = d => +d.result;
-    } else if (intraop_type === 'Electrolyte Levels') {
-      cols = ['na', 'k', 'ica', 'cl'];
-    } else if (intraop_type === 'Metabolite Levels') {
-      cols = ['hb', 'gluc', 'tprot', 'ammo'];
-    }
-
-    const filtered = labs
-      .filter(d =>
-        validCaseIDs.has(d.caseid) &&
-        cols.includes(d.name) &&
-        d.pct_change !== "" &&
-        !isNaN(+d.pct_change)
-      )
-      .map(d => ({
-        caseid: d.caseid,
-        name: d.name,
-        hour: +d.hour,
-        pct_change: +d.pct_change,
-        result: +d.result
-      }));
-
-    const groupedByNameAndHour = d3.group(filtered, d => d.name, d => d.hour);
-    const medianData = new Map();
-
-    for (const [name, hoursMap] of groupedByNameAndHour.entries()) {
-      const medianPoints = [];
-      for (const [hour, records] of hoursMap.entries()) {
-        const values = records.map(yval).sort(d3.ascending);
-        const medianVal = d3.median(values);
-        medianPoints.push({ hour, medianVal });
-      }
-      medianPoints.sort((a, b) => a.hour - b.hour);
-      medianData.set(name, medianPoints);
-    }
-
-    const width = 1075, height = 400;
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-
-    d3.select("#intraop_vis").selectAll("*").remove();
-    const svg = d3.select("#intraop_vis")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height);
-
-    const x = d3.scaleLinear()
-      .domain(d3.extent(filtered, d => d.hour))
-      .range([margin.left, width - margin.right]);
-
-    const values = filtered.map(yval).sort(d3.ascending);
-    const lower = 0;
-    const upper = d3.quantile(values, 0.99);
-
-    const y = d3.scaleLinear()
-      .domain([lower, upper])
-      .nice()
-      .range([height - margin.bottom, margin.top]);
-
-    const color = d3.scaleOrdinal()
-      .domain(cols)
-      .range(d3.schemeTableau10);
-
-    const tooltip = d3.select("#intraop-tooltip");
-
-    // Dedicated group for lines
-    const lineLayer = svg.append("g").attr("id", "lines");
-
-    // Plot lines and interactivity
-    lineLayer.selectAll(".line")
-      .data(Array.from(medianData.entries()))
-      .join("path")
-      .attr("class", "line")
-      .attr("fill", "none")
-      .attr("stroke", ([name]) => color(name))
-      .attr("stroke-width", 1.8)
-      .attr("opacity", 1)
-      .attr("d", ([, points]) =>
-        d3.line()
-          .x(d => x(d.hour))
-          .y(d => y(d.medianVal))(points)
-      )
-      .on("mouseenter", function (event, [name]) {
-        lineLayer.selectAll(".line")
-          .classed("dimmed", true)
-          .classed("highlighted", false);
-
-        d3.select(this)
-          .classed("dimmed", false)
-          .classed("highlighted", true)
-          .raise();
-
-        tooltip
-          .html(`<strong>${legendNames[name][0]}</strong><br>${legendNames[name][1]}`)
-          .style("visibility", "visible");
-      })
-      .on("mousemove", function (event) {
-        tooltip
-          .style("top", (event.pageY + 15) + "px")
-          .style("left", (event.pageX + 15) + "px");
-      })
-      .on("mouseleave", function () {
-        lineLayer.selectAll(".line")
-          .classed("dimmed", false)
-          .classed("highlighted", false);
-
-        tooltip.style("visibility", "hidden");
-      });
-
-    // Axes
-    svg.append("g")
-      .attr("transform", `translate(0, ${height - margin.bottom})`)
-      .call(d3.axisBottom(x))
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", 35)
-      .attr("fill", "black")
-      .attr("text-anchor", "middle")
-      .text("Hours");
-
-    svg.append("g")
-      .attr("transform", `translate(${margin.left}, 0)`)
-      .call(d3.axisLeft(y))
-      .append("text")
-      .attr("x", -height / 2)
-      .attr("y", -35)
-      .attr("transform", "rotate(-90)")
-      .attr("fill", "black")
-      .attr("text-anchor", "middle")
-      .text(ylabel);
-
-    // Final legend layer on top
-    const legendItemHeight = 20;
-    const legendBoxPadding = 10;
-
-    const legendLayer = svg.append("g")
-      .attr("id", "legend-layer")
-      .attr("transform", `translate(${width - margin.right - 150}, ${margin.top})`)
-      .style("pointer-events", "none"); // Avoid blocking line interaction
-
-    // Legend background
-    legendLayer.append("rect")
-      .attr("x", -legendBoxPadding)
-      .attr("y", -legendBoxPadding)
-      .attr("width", 140)
-      .attr("height", cols.length * legendItemHeight + legendBoxPadding * 2)
-      .attr("fill", "#f0f0f0")
-      .attr("stroke", "#ccc")
-      .attr("rx", 6);
-
-    // Legend color squares
-    legendLayer.selectAll("legend-color")
-      .data(cols)
-      .join("rect")
-      .attr("x", 0)
-      .attr("y", (d, i) => i * legendItemHeight)
-      .attr("width", 18)
-      .attr("height", 18)
-      .attr("fill", d => color(d));
-
-    // Legend labels
-    legendLayer.selectAll("legend-text")
-      .data(cols)
-      .join("text")
-      .attr("x", 24)
-      .attr("y", (d, i) => i * legendItemHeight + 14)
-      .text(d => legendNames[d][0])
-      .attr("font-size", 12)
-      .attr("fill", "black");
-  }
-
-
-
-
 });

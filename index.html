@@ -3,120 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DSC106 Final Project</title>
+  <title>The Surgery Experience</title>
 
   <link rel="stylesheet" href="style.css" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- Add Font Awesome for the filter icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <!-- intro -->
-  <div id="intro-container">
-    <div id="intro-screen">
-    <h1 style="margin: 0;"> 
-      <div class='line' style="animation-delay: 0s;">Imagine this:</div>
-      <div class='line' style="animation-delay: 2s;">You (yes, you!) were one of the 6387 people that underwent a surgery at Seoul National University Hospital.</div>
-      <div class='line' style="animation-delay: 4s;">Now, travel through the basic statistical journey of a surgery, from pre-operation to during the operation to post-operation.</div>
-    </h1>
-    <p class='line' style="margin-top: 0.5em; animation-delay: 6s">Click anywhere to enter!</p>
-    </div>
-</div>
-
   <header>
-    <h1>DSC106 Final Project</h1>
+    <img src="header.png" alt="Surgery Header Image" class="header-image">
+    <h1>The Surgery Experience</h1>
   </header>
 
-  <div class="top-bar">
-  <h2>Select your demographics</h2>
-  <div id="demo">
-    <label><input type="checkbox" id="toggle-male"> Male</label>
-    <label><input type="checkbox" id="toggle-female"> Female</label>
+  <section class="introduction">
+    <!-- <h2>Understanding Your Surgery Experience</h2> -->
+    <p>Every surgery has a story. From when a patient walks in, to what happens in the OR, to how they recover afterward.</p>
+    <p>With data from over 6,000 real surgeries, we break down what happens at each step: admission, prep, the operation itself, and recovery. We show you how different factors like age, gender, and health status affect the experience and what different types of surgeries people undergo.</p>
+    <p>Scroll down to explore the full experience and see what the numbers reveal about what really happens during surgery.</p>
+    <div id="body-container">
+      <img src="outline_body.png" id="body-img" />
+      <canvas id="overlay"></canvas>
+      <div id="heatmap-tooltip"></div>
+    </div>
+  </section>
 
-    <label>Age: <input type="range" min="0" max="100" id="age" value="25">
-      <span class="value-display" id="age-value">25 years</span>
-    </label>
-
-    <label>Height: <input type="range" min="50" max="250" id="height" value="170">
-      <span class="value-display" id="height-value">170 cm</span>
-    </label>
-
-    <label>Weight: <input type="range" min="30" max="200" id="weight" value="70">
-      <span class="value-display" id="weight-value">70 kgs</span>
-    </label>
+  <!-- Collapsible Filter Panel -->
+  <div class="filter-panel" id="filterPanel">
+    <div class="filter-content">
+      <h4>Filters</h4>
+      <div id="demo" class="filter-options">
+        <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
+        <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
+        <label>Age (yrs): <input type="number" min = '0' id="age"></label>
+        <label>Height (cm): <input type="number" min = '0' id="height"></label>
+        <label>Weight (kg): <input type="number" min = '0' id="weight"></label>
+      </div>
+    </div>
+    <button class="filter-toggle" id="filterToggle">
+      <i class="fas fa-filter"></i>
+    </button>
   </div>
-</div>
 
-  <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
+  <!-- Surgery Info Modal -->
+  <div id="surgery-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h3 id="modal-title"></h3>
+      <div id="modal-description"></div>
+    </div>
+  </div>
 
-  <h1>First, let's go through Preoperative Information</h1>
+  <!-- Backdrop for filter panel -->
+  <div class="filter-backdrop" id="filterBackdrop"></div>
 
-  <main>
-    <div id="viz"></div>
-  </main>
-  <h2> How Long Does Your Surgery Take?</h2>
-  <div id="opduration_vis"></div>
-  <dl id="duration-tooltip" class="info tooltip" hidden>
-    <dt id="hours-label">Hours</dt>
-    <dd id="info"></dd>
-  </dl>
+  <!-- Scrollytelling Section -->
+  <div class="scroll-container">
+    <div class="sticky-graphic">
+      <div id="visualization"></div>
+    </div>
 
-  <h2> How Long Are You Under Anesthesia?</h2>
+    <div class="scroll-sections">
+      <section class="scroll-section" data-step="1">
+        <div class="step-content">
+          <h3>Admission</h3>
+          <p>Patients arrive with a range of conditions and health profiles. Most are over 50, with a notable portion already at moderate risk.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="2">
+        <div class="step-content">
+          <h3>Pre-Op Assessment</h3>
+          <p>Before surgery begins, doctors run lab tests and assess risk. Low hemoglobin or high ASA can signal danger ahead.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="3">
+        <div class="step-content">
+          <h3>Surgery</h3>
+          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="4">
+        <div class="step-content">
+          <h3>ICU Recovery</h3>
+          <p>After surgery, some patients go straight home. Others stay in the ICU for days—or longer.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="5">
+        <div class="step-content">
+          <h3>Outcomes</h3>
+          <p>Most patients recover—but not all. Can we predict who's at greatest risk?</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Original Content Section -->
+  <div class="original-content">
+
+    
+    <main>
+      <div id="viz"></div>
+    </main>
+    <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
+    <h2>How Long Does Your Surgery Take?</h2>
+    <div id="opduration_vis"></div>
+    <dl id="duration-tooltip" class="info tooltip" hidden>
+      <dt id="hours-label">Hours</dt>
+      <dd id="hours"></dd>
+    </dl>
+
+    <h2>How Long Are You Under Anesthesia?</h2>
     <div id="aneduration_vis"></div>
     <dl id="duration-tooltip" class="info tooltip" hidden>
       <dt id="hours-label">Hours</dt>
-      <dd id="info"></dd>
-  </dl>
+      <dd id="hours"></dd>
+    </dl>
 
-  <h2>Based on your selection, how likely are you to have...?</h2>
+    <h2>Based on your selection, how likely are you to have...?</h2>
     <div id="predispose"></div>
 
-  <h2>What are your typical preoperative levels of...?</h2>
+    <h2>What are your typical preoperative levels of...?</h2>
     <div id="preop"></div>
+  </div>
 
-  <h1>Next, let's view some Intraoperative Statistics</h1>
-
-  <label>Pick a kind of surgery </label>
-  <select id = 'surgery-drop'>
-    <option value = 'Colorectal'>Colorectal</option>
-    <option value = 'Stomach'>Stomach</option>
-    <option value = 'Biliary/Pancreas'>Biliary/Pancreas</option>
-    <option value = 'Vascular'>Vascular</option>
-    <option value = 'Major resection'>Major resection</option>
-    <option value = 'Breast'>Breast</option>
-    <option value = 'Minor resection'>Minor resection</option>
-    <option value = 'Transplantation'>Transplantation</option>
-    <option value = 'Hepatic'>Hepatic</option>
-    <option value = 'Thyroid'>Thyroid</option>
-    <option value = 'Others'>Others</option>
-  </select>
-  <label> and what you would like to see </label>
-  <select id = 'intraop-type'>
-    <option value = 'Cell Count'>Cell Count</option>
-    <option value = 'Metabolite Levels'>Metabolite Levels</option>
-    <option value = 'Electrolyte Levels'>Electrolyte Levels</option>
-  </select>
-
-  <div id = 'intraop_vis'></div>
-  <div id = 'intraop-tooltip'></div>
-
-  <h1>Lastly, lets look at some Postoperative Data</h1>
-
-
-
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intersection-observer/0.12.0/intersection-observer.min.js"></script>
   <script src="global.js"></script>
+  <script src="scrollytelling.js" type="module"></script>
+  <script type="module">
+    import { renderHeatmapFromStaticCounts } from './heatmap.js';
+    window.addEventListener('DOMContentLoaded', renderHeatmapFromStaticCounts);
+  </script>
+  <script>
+    // Filter panel functionality
+    const filterPanel = document.getElementById('filterPanel');
+    const filterToggle = document.getElementById('filterToggle');
+    const filterBackdrop = document.getElementById('filterBackdrop');
 
-  <script> 
-  // CODE FOR INTRO + Enter on Click
-      const container = document.getElementById('intro-container');
-      const screen = document.getElementById('intro-screen')
+    function toggleFilterPanel() {
+      filterPanel.classList.toggle('open');
+      filterBackdrop.classList.toggle('show');
+    }
 
-      //waits for user to click to hide intro
-      screen.addEventListener('click', () => {
-        // Optional fade-out effect
-        screen.style.opacity = 0;
-        setTimeout(() => {
-          container.style.display = 'none';
-        }, 500); // Match transition duration
-      });
-    </script>
+    filterToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFilterPanel();
+    });
+
+    filterBackdrop.addEventListener('click', toggleFilterPanel);
+
+    // Close panel when clicking outside
+    document.addEventListener('click', (e) => {
+      if (filterPanel.classList.contains('open') && 
+          !filterPanel.contains(e.target)) {
+        toggleFilterPanel();
+      }
+    });
+
+    // Prevent panel from closing when clicking inside
+    filterPanel.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  </script>
 </body>
 </html>

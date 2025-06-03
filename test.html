@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Heatmap on Human Body</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="body-container">
+    <img src="outline_body.png" id="body-img" />
+    <canvas id="overlay"></canvas>
+  </div>
+
+  <div id="heatmap-tooltip"></div>
+
+  <!-- ✅ Load after DOM is ready -->
+  <script type="module">
+    import { renderHeatmapFromStaticCounts } from './heatmap.js';
+    window.addEventListener('DOMContentLoaded', renderHeatmapFromStaticCounts);
+  </script>
+</body>
+</html>

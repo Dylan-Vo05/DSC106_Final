@@ -13,41 +13,106 @@
     <h1>DSC106 Final Project</h1>
   </header>
 
-  <h2>Select your demographics</h2>
-  <div id="demo">
-    <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
-    <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
 
-    <label>Age (yrs): <input type="number" min = '0' id="age"></label>
-    <label>Height (cm): <input type="number" min = '0' id="height"></label>
-    <label>Weight (kg): <input type="number" min = '0' id="weight"></label>
+
+  <section class="introduction">
+    <h2>Understanding Your Surgery Experience</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. This tool helps you understand what to expect during your surgery based on data from similar cases.</p>
+    <div id="body-container">
+      <img src="outline_body.png" id="body-img" />
+      <canvas id="overlay"></canvas>
+    </div>
+    <div id="heatmap-tooltip"></div>
+  </section>
+
+    <!-- Sticky Demographics Filter Section -->
+    <div id="demo" class="sticky-filters">
+      <label><input type="checkbox" id="toggle-male" unchecked> Male</label>
+      <label><input type="checkbox" id="toggle-female" unchecked> Female</label>
+      <label>Age (yrs): <input type="number" min = '0' id="age"></label>
+      <label>Height (cm): <input type="number" min = '0' id="height"></label>
+      <label>Weight (kg): <input type="number" min = '0' id="weight"></label>
+    </div>
+  
+    <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
+
+  <!-- Scrollytelling Section -->
+  <div class="scroll-container">
+    <div class="sticky-graphic">
+      <div id="visualization"></div>
+    </div>
+
+    <div class="scroll-sections">
+      <section class="scroll-section" data-step="1">
+        <div class="step-content">
+          <h3>Admission</h3>
+          <p>Patients arrive with a range of conditions and health profiles. Most are over 50, with a notable portion already at moderate risk.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="2">
+        <div class="step-content">
+          <h3>Pre-Op Assessment</h3>
+          <p>Before surgery begins, doctors run lab tests and assess risk. Low hemoglobin or high ASA can signal danger ahead.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="3">
+        <div class="step-content">
+          <h3>Surgery</h3>
+          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="4">
+        <div class="step-content">
+          <h3>ICU Recovery</h3>
+          <p>After surgery, some patients go straight home. Others stay in the ICU for days—or longer.</p>
+        </div>
+      </section>
+
+      <section class="scroll-section" data-step="5">
+        <div class="step-content">
+          <h3>Outcomes</h3>
+          <p>Most patients recover—but not all. Can we predict who's at greatest risk?</p>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <h3>There are <label id = 'case_count'></label> similar cases to yours.</h3>
+  <!-- Original Content Section -->
+  <div class="original-content">
+    <main>
+      <div id="viz"></div>
+    </main>
+    <h2>How Long Does Your Surgery Take?</h2>
+    <div id="opduration_vis"></div>
+    <dl id="duration-tooltip" class="info tooltip" hidden>
+      <dt id="hours-label">Hours</dt>
+      <dd id="hours"></dd>
+    </dl>
 
-  <main>
-    <div id="viz"></div>
-  </main>
-  <h2> How Long Does Your Surgery Take?</h2>
-  <div id="opduration_vis"></div>
-  <dl id="duration-tooltip" class="info tooltip" hidden>
-    <dt id="hours-label">Hours</dt>
-    <dd id="hours"></dd>
-  </dl>
-
-  <h2> How Long Does Are You Under Anesthesia?</h2>
+    <h2>How Long Are You Under Anesthesia?</h2>
     <div id="aneduration_vis"></div>
     <dl id="duration-tooltip" class="info tooltip" hidden>
       <dt id="hours-label">Hours</dt>
       <dd id="hours"></dd>
-  </dl>
+    </dl>
 
-  <h2>Based on your selection, how likely are you to have...?</h2>
+    <h2>Based on your selection, how likely are you to have...?</h2>
     <div id="predispose"></div>
 
-  <h2>What are your typical preoperative levels of...?</h2>
+    <h2>What are your typical preoperative levels of...?</h2>
     <div id="preop"></div>
+  </div>
 
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intersection-observer/0.12.0/intersection-observer.min.js"></script>
   <script src="global.js"></script>
+  <script src="scrollytelling.js" type="module"></script>
+  <script type="module">
+    import { renderHeatmapFromStaticCounts } from './heatmap.js';
+    window.addEventListener('DOMContentLoaded', renderHeatmapFromStaticCounts);
+  </script>
 </body>
 </html>

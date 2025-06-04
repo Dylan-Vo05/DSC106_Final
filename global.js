@@ -103,12 +103,13 @@ Promise.all([
 
   d3.select("#surgery-drop").on("input", function () {
     intraop_surgery = d3.select(this).property('value');
-    renderintraop(cleaned, intraop_surgery, intraop_type);
+    renderIntraop(filteredData, intraop_surgery, intraop_type);
+    
   });
 
   d3.select("#intraop-type").on("input", function () {
     intraop_type = d3.select(this).property('value');
-    renderintraop(cleaned, intraop_surgery, intraop_type);
+    renderIntraop(filteredData, intraop_surgery, intraop_type);
   });
 
   function updateFilter(){
@@ -632,7 +633,7 @@ Promise.all([
       .attr("fill", "black");
   }
 
-
+  
 function renderICUScatter(data) {
   console.log('icu viz')
   data.forEach(d => {
@@ -739,6 +740,7 @@ const svg = d3.select("#postop-vis")
     tooltip.style.left = `${event.clientX}px`;
     tooltip.style.top = `${event.clientY}px`;
   }
+
 
   // Visualization state and data
   let currentStep = 1;

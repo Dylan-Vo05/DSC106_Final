@@ -62,6 +62,7 @@ Promise.all([
   renderPreopInfo(cleaned);
   renderIntraop(cleaned, intraop_surgery, intraop_type);
   renderICUScatter(cleaned);
+  renderICUBoxplot(cleaned);
 
   d3.select("#toggle-male").on("change", function () {
     if (this.checked) {
@@ -721,6 +722,190 @@ const svg = d3.select("#postop-vis")
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
       });
+}
+
+function renderICUBoxplot(data, containerId = "#visualization") {
+
+  // Filter out invalid ICU length of stay data
+  const filteredData = data;
+
+  // Group data by surgery type
+  const groupedData = d3.group(filteredData, d => d.optype);
+
+  console.log("filteredData length:", filteredData.length);
+  console.log(filteredData.slice(0, 5));
+
+
+  // Compute boxplot stats for each surgery type
+  const stats = Array.from(groupedData, ([surgeryType, values]) => {
+    const icuLOSValues = values.map(d => +d.icu_days).sort(d3.ascending);
+    const q1 = d3.quantile(icuLOSValues, 0.25);
+    const median = d3.quantile(icuLOSValues, 0.5);
+    const q3 = d3.quantile(icuLOSValues, 0.75);
+    const min = icuLOSValues[0];
+    const max = icuLOSValues[icuLOSValues.length - 1];
+    console.log(surgeryType, icuLOSValues, { q1, median, q3, min, max });
+    return { surgeryType, min, q1, median, q3, max };
+  });
+
+  // Dimensions & margins (consistent naming)
+  const width = 800;
+  const height = 400;
+  const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+
+  // Clear previous svg content
+  //d3.select(containerId).selectAll("*").remove();
+
+  // Create svg
+  const svg = d3.select(containerId)
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  // X scale - categorical surgery types
+  const x = d3.scaleBand()
+    .domain(stats.map(d => d.surgeryType))
+    .range([margin.left, width - margin.right])
+    .paddingInner(0.3)
+    .paddingOuter(0.2);
+
+  // Y scale - ICU length of stay
+  const y = d3.scaleLinear()
+    .domain([
+      0,
+      5
+    ])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
+
+  // Color scale (consistent with your other plots)
+  const color = d3.scaleOrdinal(d3.schemeTableau10)
+    .domain(stats.map(d => d.surgeryType));
+
+  // Draw boxes
+  svg.selectAll("rect.box")
+    .data(stats)
+    .join("rect")
+    .attr("class", "box")
+    .attr("x", d => x(d.surgeryType))
+    .attr("y", d => Math.min(y(d.q1), y(d.q3)))
+    .attr("width", x.bandwidth())
+    .attr("height", d => Math.abs(y(d.q1) - y(d.q3)))
+    .attr("fill", d => color(d.surgeryType))
+    .attr("opacity", 0.7);
+
+  // Draw median lines
+  svg.selectAll("line.median")
+    .data(stats)
+    .join("line")
+    .attr("class", "median")
+    .attr("x1", d => x(d.surgeryType))
+    .attr("x2", d => x(d.surgeryType) + x.bandwidth())
+    .attr("y1", d => y(d.median))
+    .attr("y2", d => y(d.median))
+    .attr("stroke", "black")
+    .attr("stroke-width", 2);
+
+  // Draw whiskers (min to q1 and q3 to max)
+  // Whisker lines (vertical)
+  svg.selectAll("line.whisker-min")
+    .data(stats)
+    .join("line")
+    .attr("class", "whisker-min")
+    .attr("x1", d => x(d.surgeryType) + x.bandwidth() / 2)
+    .attr("x2", d => x(d.surgeryType) + x.bandwidth() / 2)
+    .attr("y1", d => y(d.min))
+    .attr("y2", d => y(d.q1))
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
+
+  svg.selectAll("line.whisker-max")
+    .data(stats)
+    .join("line")
+    .attr("class", "whisker-max")
+    .attr("x1", d => x(d.surgeryType) + x.bandwidth() / 2)
+    .attr("x2", d => x(d.surgeryType) + x.bandwidth() / 2)
+    .attr("y1", d => y(d.q3))
+    .attr("y2", d => y(d.max))
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
+
+  // Whisker caps (horizontal)
+  const capWidth = x.bandwidth() * 0.4;
+  svg.selectAll("line.whisker-min-cap")
+    .data(stats)
+    .join("line")
+    .attr("class", "whisker-min-cap")
+    .attr("x1", d => x(d.surgeryType) + x.bandwidth() / 2 - capWidth / 2)
+    .attr("x2", d => x(d.surgeryType) + x.bandwidth() / 2 + capWidth / 2)
+    .attr("y1", d => y(d.min))
+    .attr("y2", d => y(d.min))
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
+
+  svg.selectAll("line.whisker-max-cap")
+    .data(stats)
+    .join("line")
+    .attr("class", "whisker-max-cap")
+    .attr("x1", d => x(d.surgeryType) + x.bandwidth() / 2 - capWidth / 2)
+    .attr("x2", d => x(d.surgeryType) + x.bandwidth() / 2 + capWidth / 2)
+    .attr("y1", d => y(d.max))
+    .attr("y2", d => y(d.max))
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
+
+  // Axes
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x))
+    .selectAll("text")
+    .attr("transform", "rotate(-30)")
+    .style("text-anchor", "end");
+
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("fill", "black")
+    .attr("x", -height / 2)
+    .attr("y", -45)
+    .attr("transform", "rotate(-90)")
+    .attr("text-anchor", "middle")
+    .text("ICU Length of Stay (days)");
+
+  console.log(stats);
+  svg.selectAll("rect.box")
+  .data(stats)
+  .join("rect")
+  .attr("class", "box")
+  .attr("x", d => x(d.surgeryType))
+  .attr("y", d => Math.min(y(d.q1), y(d.q3)))
+  .attr("width", x.bandwidth())
+  .attr("height", d => Math.abs(y(d.q1) - y(d.q3)))
+  .attr("fill", "steelblue")
+  .attr("opacity", 0.7);
+
+
+  // Optional: tooltip setup for boxes (like renderIntraop)
+  const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("background", "#eee")
+    .style("padding", "6px")
+    .style("border-radius", "4px")
+    .style("font-size", "12px")
+    .style("pointer-events", "none")
+    .on("mousemove", (event) => {
+      tooltip.style("top", (event.pageY + 15) + "px")
+             .style("left", (event.pageX + 15) + "px");
+    })
+    .on("mouseleave", () => {
+      tooltip.style("visibility", "hidden");
+    });
+  }
+
+
 
   function renderTooltip(data) {
     const hours = document.getElementById('hours2');
@@ -881,14 +1066,11 @@ const svg = d3.select("#postop-vis")
       .style('text-align', 'center');
     
     viz.append('div')
-      .style('width', '80%')
-      .style('height', '60%')
-      .style('margin', '0 auto')
-      .style('background', '#ddd')
-      .style('display', 'flex')
-      .style('align-items', 'center')
-      .style('justify-content', 'center')
-      .html('Outcomes Visualization<br>(Placeholder)');
+      .attr('id','postop-vis');
+
+    renderICUBoxplot(filteredData);
+
+
   }
 
   // Initialize first visualization
@@ -926,4 +1108,4 @@ const svg = d3.select("#postop-vis")
   document.querySelectorAll('.scroll-section').forEach(section => {
     observer.observe(section);
   }); 
-});
+

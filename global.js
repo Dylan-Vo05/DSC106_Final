@@ -161,6 +161,7 @@ Promise.all([
     renderPredisposeInfo(filteredData);
     renderPreopInfo(filteredData);
     renderIntraop(filteredData, intraop_surgery, intraop_type);
+     renderOutcome(cleaned);
   }
 
     function renderOperationDuration(data) {
@@ -631,11 +632,9 @@ Promise.all([
       .attr("fill", "black");
   }
 
-<<<<<<< Updated upstream
 
-
-  
 function renderICUScatter(data) {
+  console.log('icu viz')
   data.forEach(d => {
       d.icu_days = +d.icu_days;         
       d.op_duration = (d.opend - d.opstart)/3600
@@ -741,7 +740,6 @@ const svg = d3.select("#postop-vis")
     tooltip.style.top = `${event.clientY}px`;
   }
 
-=======
   // Visualization state and data
   let currentStep = 1;
   const visualizations = {
@@ -841,21 +839,25 @@ const svg = d3.select("#postop-vis")
   }
 
   function createICUViz() {
-    const viz = d3.select('#visualization');
+    console.log('icu viz');
+  const viz = d3.select('#visualization');
     viz.html('');
     viz.append('h2')
       .text('ICU Recovery Stats')
       .style('text-align', 'center');
     
+    viz.append('h3')
+      .text('Duration of Operation vs Days in ICU');
+
     viz.append('div')
-      .style('width', '80%')
-      .style('height', '60%')
-      .style('margin', '0 auto')
-      .style('background', '#ddd')
-      .style('display', 'flex')
-      .style('align-items', 'center')
-      .style('justify-content', 'center')
-      .html('ICU Visualization<br>(Placeholder)');
+      .attr('id','postop-vis');
+
+    viz.append('dl')
+      .attr('id','icu-tooltip')
+      .attr('class', 'info tooltip')
+      .attr('hidden', true);
+
+    renderICUScatter(filteredData);
   }
 
   function createOutcomesViz() {
@@ -911,6 +913,4 @@ const svg = d3.select("#postop-vis")
   document.querySelectorAll('.scroll-section').forEach(section => {
     observer.observe(section);
   }); 
-
->>>>>>> Stashed changes
 });

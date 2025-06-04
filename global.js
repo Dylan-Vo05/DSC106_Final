@@ -27,6 +27,7 @@ d3.csv("cases.txt").then(function(data) {
   renderAnesthesiaDuration(cleaned);
   renderPrediposeInfo(cleaned);
   renderPreopInfo(cleaned);
+  renderICUScatter(cleaned);
 
   d3.select("#toggle-male").on("change", function () {
     if (this.checked) {
@@ -359,4 +360,113 @@ d3.csv("cases.txt").then(function(data) {
   function showCount(data) {
     const dl = d3.select('#case_count').text(data.length)
   }
+
+
+  
+function renderICUScatter(data) {
+  data.forEach(d => {
+      d.icu_days = +d.icu_days;         
+      d.op_duration = (d.opend - d.opstart)/3600
+    });
+
+  // set the dimensions and margins of the graph
+const margin = {top: 10, right: 30, bottom: 40, left: 60},
+    //width = 460 - margin.left - margin.right,
+    //height = 400 - margin.top - margin.bottom;
+    width = 460,
+    height = 400;
+
+// append the svg object to the body of the page
+const svg = d3.select("#postop-vis")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+   
+  // Add X axis
+  const x = d3.scaleLinear()
+    .domain([0, d3.max(data, (d) => d.op_duration)])
+    .nice()
+    .range([0, width]);
+
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+    .append("text")
+        .attr("x", width/2)
+        .attr("y", 35)
+        .attr("font-size", 12)
+      .attr("fill", "black")
+      .attr("text-anchor", "middle")
+      .text("Duration of Operation (Hours)");
+
+
+  // Add Y axis
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(data, (d) => d.icu_days)])
+    .range([height, 0]);
+
+  svg.append("g").call(d3.axisLeft(y))
+        .append("text")
+        .attr("transform", "rotate(-90)") 
+        .attr("x", -height/2)
+        .attr("y", -50)
+        .attr("font-size", 12)
+        .attr("fill", "black")
+        .attr("text-anchor", "middle")
+        .text("Days Spent in ICU");
+    
+   const surgeryDescriptions = {
+      'Colorectal': "Focuses on treatment of the colon, rectum, and anus. Procedures range from polyp removal to cancer and inflammatory bowel disease treatment.",
+      'Stomach': "Involves surgical intervention on the stomach, often for ulcers, tumors, or weight-loss procedures such as gastrectomy or gastric bypass.",
+      'Biliary/Pancreas': "Covers operations on the bile ducts, gallbladder, and pancreas, typically for gallstones, pancreatitis, or tumors in the hepatobiliary system.",
+      'Vascular': "Treats disorders of the blood vessels, including procedures to repair aneurysms, clear blockages, or create access for dialysis.",
+      'Major resection': "Involves removal of large or complex tissue sections, in cases of advanced tumors or extensive disease in organs like the liver or intestines.",
+      'Breast': "Surgical treatment of breast conditions, including lumpectomy, mastectomy, or reconstruction, often related to cancer or benign tumors.",
+      'Minor resection': "Refers to smaller-scale removals of tissue, such as partial organ or lesion removal.",
+      'Transplantation': "Involves replacing a diseased organ with a healthy one from a donor, such as liver, kidney, or heart transplants.",
+      'Hepatic': "Targets diseases of the liver, such as resections for tumors, treatment for cirrhosis, or preparation for transplantation.",
+      'Thyroid': "Involves surgery on the thyroid gland, typically for nodules, cancer, or hyperthyroidism, ranging from lobectomy to full thyroidectomy.",
+      'Others': "Includes various procedures that do not fall into standard categories, often unique or highly specialized surgical cases."
+    };
+
+  // Add dots
+  svg.append('g')
+    .selectAll("dot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => x(d.op_duration))
+    .attr("cy", (d) => y(d.icu_days))
+    .attr("r", 5)
+    .style("fill", "#69b3a2")
+    .on('mouseenter', (event, d) => {
+        renderTooltipContent(d);
+        updateTooltipVisibility(true);
+        updateTooltipPosition(event);
+      })
+      .on('mouseleave', () => {
+        updateTooltipVisibility(false);
+      });
+}
+
+  function renderTooltipContent(data) {
+    const hours = document.getElementById('hours');
+    hours.textContent = data.op_duration
+    //const icu = document.getElementById('icu');
+    //icu.textContent = data.icu_days
+  }
+
+ function updateTooltipVisibility(isVisible) {
+  const tooltip = document.getElementById('duration-tooltip');
+  tooltip.hidden = !isVisible;
+  }
+
+  function updateTooltipPosition(event) {
+    const tooltip = document.getElementById('duration-tooltip');
+    tooltip.style.left = `${event.clientX}px`;
+    tooltip.style.top = `${event.clientY}px`;
+  }
+
 });

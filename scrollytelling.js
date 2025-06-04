@@ -1,32 +1,11 @@
 // Visualization state and data
 let currentStep = 1;
 const visualizations = {
-  1: createAdmissionViz,
-  2: createPreOpViz,
-  3: createSurgeryViz,
-  4: createICUViz,
-  5: createOutcomesViz
+  1: createPreOpViz,
+  2: createSurgeryViz,
+  3: createICUViz,
+  4: createOutcomesViz
 };
-
-// Placeholder visualization functions
-function createAdmissionViz() {
-  const viz = d3.select('#visualization');
-  viz.html(''); // Clear previous visualization
-  viz.append('h2')
-     .text('Admission Demographics')
-     .style('text-align', 'center');
-  
-  // Placeholder rectangle
-  viz.append('div')
-     .style('width', '80%')
-     .style('height', '60%')
-     .style('margin', '0 auto')
-     .style('background', '#ddd')
-     .style('display', 'flex')
-     .style('align-items', 'center')
-     .style('justify-content', 'center')
-     .html('Admission Visualization<br>(Placeholder)');
-}
 
 function createPreOpViz() {
   const viz = d3.select('#visualization');

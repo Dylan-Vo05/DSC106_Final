@@ -829,12 +829,12 @@ const svg = d3.select("#postop-vis")
       .text('Hours');
     dl2.append('dd')
       .attr('id', 'hours');
+      */
 
     viz.append('div')
       .attr('id', 'intraop_vis');
     viz.append('div')
       .attr('id', 'intraop-tooltip');
-    */
     renderOperationDuration(filteredData);
     //renderAnesthesiaDuration(filteredData);
     renderIntraop(filteredData, intraop_surgery, intraop_type);

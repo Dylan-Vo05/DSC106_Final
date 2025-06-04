@@ -714,33 +714,32 @@ const svg = d3.select("#postop-vis")
     .attr("r", 5)
     .style("fill", "#69b3a2")
     .on('mouseenter', (event, d) => {
-        renderTooltipContent(d);
+        renderTooltip(d);
         updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
       });
-}
 
-  function renderTooltipContent(data) {
-    const hours = document.getElementById('hours');
-    hours.textContent = data.op_duration
-    //const icu = document.getElementById('icu');
-    //icu.textContent = data.icu_days
+  function renderTooltip(data) {
+    const hours = document.getElementById('hours2');
+    hours.textContent = data.op_duration.toFixed(2);
+    const icu = document.getElementById('icu');
+    icu.textContent = data.icu_days;
   }
 
  function updateTooltipVisibility(isVisible) {
-  const tooltip = document.getElementById('duration-tooltip');
+  const tooltip = document.getElementById('icu-tooltip');
   tooltip.hidden = !isVisible;
   }
 
   function updateTooltipPosition(event) {
-    const tooltip = document.getElementById('duration-tooltip');
+    const tooltip = document.getElementById('icu-tooltip');
     tooltip.style.left = `${event.clientX}px`;
     tooltip.style.top = `${event.clientY}px`;
   }
-
+}
 
   // Visualization state and data
   let currentStep = 1;
@@ -859,6 +858,18 @@ const svg = d3.select("#postop-vis")
       .attr('class', 'info tooltip')
       .attr('hidden', true);
 
+    const dl3 = d3.select('#icu-tooltip');
+  dl3.append('dt')
+      .attr('id', 'hours2-label')
+      .text('Hours');
+    dl3.append('dd')
+      .attr('id', 'hours2');
+
+      dl3.append('dt')
+      .attr('id', 'icu-label')
+      .text('Days in ICU');
+    dl3.append('dd')
+      .attr('id', 'icu');
     renderICUScatter(filteredData);
   }
 

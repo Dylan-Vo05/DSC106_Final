@@ -744,13 +744,12 @@ const svg = d3.select("#postop-vis")
   // Visualization state and data
   let currentStep = 1;
   const visualizations = {
-    1: createAdmissionViz,
-    2: createPreOpViz,
-    3: createSurgeryViz,
-    4: createICUViz,
-    5: createOutcomesViz
+    1: createPreOpViz,
+    2: createSurgeryViz,
+    3: createICUViz,
+    4: createOutcomesViz
   };
-
+  /*
   // Placeholder visualization functions
   function createAdmissionViz() {
     const viz = d3.select('#visualization');
@@ -770,6 +769,7 @@ const svg = d3.select("#postop-vis")
       .style('justify-content', 'center')
       .html('Admission Visualization<br>(Placeholder)');
   }
+      */
 
   function createPreOpViz() {
     const viz = d3.select('#visualization');
@@ -812,7 +812,7 @@ const svg = d3.select("#postop-vis")
       .text('Hours');
     dl1.append('dd')
       .attr('id', 'hours');
-
+    /*
     viz.append('h3')
       .text('How Long Are You Under Anesthesia?');
     viz.append('div')
@@ -828,14 +828,14 @@ const svg = d3.select("#postop-vis")
       .text('Hours');
     dl2.append('dd')
       .attr('id', 'hours');
+      */
 
     viz.append('div')
       .attr('id', 'intraop_vis');
     viz.append('div')
       .attr('id', 'intraop-tooltip');
-
     renderOperationDuration(filteredData);
-    renderAnesthesiaDuration(filteredData);
+    //renderAnesthesiaDuration(filteredData);
     renderIntraop(filteredData, intraop_surgery, intraop_type);
   }
 
@@ -892,7 +892,7 @@ const svg = d3.select("#postop-vis")
   }
 
   // Initialize first visualization
-  createAdmissionViz();
+  createPreOpViz();
 
   // Intersection Observer setup
   const observerOptions = {

@@ -19,7 +19,7 @@
   <section class="introduction">
     <!-- <h2>Understanding Your Surgery Experience</h2> -->
     <p>Every surgery has a story. From when a patient walks in, to what happens in the OR, to how they recover afterward.</p>
-    <p>With data from over 6,000 real surgeries, we break down what happens at each step: admission, prep, the operation itself, and recovery. We show you how different factors like age, gender, and health status affect the experience and what different types of surgeries people undergo.</p>
+    <p>With data from over 6,000 real surgeries, we break down what happens at each step: prep, the operation itself, and recovery. We show you how different factors like age, gender, and health status affect the experience and what different types of surgeries people undergo.</p>
     <p>Scroll down to explore the full experience and see what the numbers reveal about what really happens during surgery. Use the filters in the bottom right to find cases from patients similar to you.</p>
     <div id="body-container">
       <img src="outline_body.png" id="body-img" />
@@ -75,22 +75,15 @@
     <div class="scroll-sections">
       <section class="scroll-section" data-step="1">
         <div class="step-content">
-          <h3>Admission</h3>
-          <p>Patients arrive with a range of conditions and health profiles. Most are over 50, with a notable portion already at moderate risk.</p>
+          <h3>Pre-Op Assessment</h3>
+          <p>Before surgery begins, doctors run lab tests and assess risk. Low hemoglobin or high ASA can signal danger ahead. Preexisting conditions can also be important determiners of what care you should recieve.</p>
         </div>
       </section>
 
       <section class="scroll-section" data-step="2">
         <div class="step-content">
-          <h3>Pre-Op Assessment</h3>
-          <p>Before surgery begins, doctors run lab tests and assess risk. Low hemoglobin or high ASA can signal danger ahead.</p>
-        </div>
-      </section>
-
-      <section class="scroll-section" data-step="3">
-        <div class="step-content">
           <h3>Surgery</h3>
-          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts.</p>
+          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts. As your body undergoes surgery, various compounds change and shift, and lets see how. </p>
           <p><label>Pick a kind of surgery </label>
             <select id = 'surgery-drop'>
               <option value = 'Colorectal'>Colorectal</option>
@@ -114,83 +107,29 @@
         </div>
       </section>
 
-      <section class="scroll-section" data-step="4">
+      <section class="scroll-section" data-step="3">
         <div class="step-content">
           <h3>ICU Recovery</h3>
           <p>After surgery, some patients go straight home. Others stay in the ICU for days—or longer.</p>
         </div>
       </section>
 
-      <section class="scroll-section" data-step="5">
+      <section class="scroll-section" data-step="4">
         <div class="step-content">
           <h3>Outcomes</h3>
           <p>Most patients safely recover, although a small minority were unable to.</p>
         </div>
       </section>
+
+      
     </div>
   </div>
 
-  <!-- Original Content Section -->
-  <div class="original-content">
-
-    
-    <main>
-      <div id="viz"></div>
-    </main>
-    
-    <h2>How Long Does Your Surgery Take?</h2>
-    <div id="opduration_vis"></div>
-    <dl id="duration-tooltip" class="info tooltip" hidden>
-      <dt id="hours-label">Hours</dt>
-      <dd id="hours"></dd>
-    </dl>
-
-    <h2>How Long Are You Under Anesthesia?</h2>
-    <div id="aneduration_vis"></div>
-    <dl id="duration-tooltip" class="info tooltip" hidden>
-      <dt id="hours-label">Hours</dt>
-      <dd id="hours"></dd>
-    </dl>
-
-    <h2>What are your typical preoperative levels of...?</h2>
-    <div id="preop"></div>
-    
-    <h1>Next, let's view some Intraoperative Statistics</h1>
-
-      <label>Pick a kind of surgery </label>
-      <select id = 'surgery-drop'>
-        <option value = 'Colorectal'>Colorectal</option>
-        <option value = 'Stomach'>Stomach</option>
-        <option value = 'Biliary/Pancreas'>Biliary/Pancreas</option>
-        <option value = 'Vascular'>Vascular</option>
-        <option value = 'Major resection'>Major resection</option>
-        <option value = 'Breast'>Breast</option>
-        <option value = 'Minor resection'>Minor resection</option>
-        <option value = 'Transplantation'>Transplantation</option>
-        <option value = 'Hepatic'>Hepatic</option>
-        <option value = 'Thyroid'>Thyroid</option>
-        <option value = 'Others'>Others</option>
-      </select>
-      <label> and what you would like to see </label>
-      <select id = 'intraop-type'>
-        <option value = 'Cell Count'>Cell Count</option>
-        <option value = 'Metabolite Levels'>Metabolite Levels</option>
-        <option value = 'Electrolyte Levels'>Electrolyte Levels</option>
-      </select>
-
-      <div id = 'intraop_vis'></div>
-      <div id = 'intraop-tooltip'></div>
-
-      </div>
-
-    <div id="postop-vis"></div>
-    <dl id=icu-tooltip class="info tooltip" hidden>
-      <dt id="hours-label2">Hours</dt>
-      <dd id="hours2"></dd>
-      <dt id="icu-label">ICU Days</dt>
-      <dd id="icu"></dd>
-    </dl>
-  </div>
+  <section class = 'conclusion'>
+    <p>Surgery is more than just a single moment; it's a complex process shaped by dozens of unseen variables and many different types that are not commonly talked about.
+      By visualizing it step-by-step, we can better understand how these pieces fit together and understand real cases without any extremely complex data or scary visuals.
+      </p>
+  </section>
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intersection-observer/0.12.0/intersection-observer.min.js"></script>

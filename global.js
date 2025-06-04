@@ -903,15 +903,14 @@ function renderICUBoxplot(data, containerId = "#visualization") {
     .on("mouseleave", () => {
       tooltip.style("visibility", "hidden");
     });
-  }
+}
 
 
-
-  function renderTooltip(data) {
-    const hours = document.getElementById('hours2');
-    hours.textContent = data.op_duration.toFixed(2);
-    const icu = document.getElementById('icu');
-    icu.textContent = data.icu_days;
+  function renderTooltipContent(data) {
+    const hours = document.getElementById('hours');
+    hours.textContent = data.op_duration
+    //const icu = document.getElementById('icu');
+    //icu.textContent = data.icu_days
   }
 
  function updateTooltipVisibility(isVisible) {
@@ -924,7 +923,7 @@ function renderICUBoxplot(data, containerId = "#visualization") {
     tooltip.style.left = `${event.clientX}px`;
     tooltip.style.top = `${event.clientY}px`;
   }
-}
+
 
   // Visualization state and data
   let currentStep = 1;
@@ -1108,4 +1107,6 @@ function renderICUBoxplot(data, containerId = "#visualization") {
   document.querySelectorAll('.scroll-section').forEach(section => {
     observer.observe(section);
   }); 
+
+});
 

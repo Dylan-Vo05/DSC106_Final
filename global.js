@@ -235,9 +235,8 @@ Promise.all([
       .attr("height", 0)
       .attr("width", xScale.bandwidth())
       .style("opacity", 0) // set bars invisible for animation
-      .on('mouseenter', (event, d) => {
+      .on('mousemove', (event, d) => {
         renderTooltipInfo(d, surgeryDescriptions);
-        updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
@@ -280,9 +279,11 @@ Promise.all([
     }
 
     function renderTooltipInfo(data, details) {
-    const info = document.getElementById('duration-tooltip');
-    info.innerHTML = `${safeToFixed(data[1])} <br>
-      ${details[data[0]]}
+    const tooltip = document.getElementById('duration-tooltip');
+    tooltip.style.display = 'block';
+    tooltip.innerHTML = `
+        <strong>${data[0]}</strong>
+        <p>${details[data[0]]}</p>
     `;
   }
 
@@ -347,9 +348,8 @@ Promise.all([
       .attr("height", 0)
       .attr("width", xScale.bandwidth())
       .style("opacity", 0) // set bars invisible for animation
-      .on('mouseenter', (event, d) => {
+      .on('mousemove', (event, d) => {
         renderTooltipInfo(d, aneDescriptions);
-        updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
@@ -431,14 +431,18 @@ Promise.all([
   }
 
   function updateTooltipVisibility(isVisible) {
-  const tooltip = document.getElementById('duration-tooltip');
-  tooltip.hidden = !isVisible;
+    const tooltip = document.getElementById('duration-tooltip');
+    if (tooltip) {
+        tooltip.style.display = isVisible ? 'block' : 'none';
+    }
   }
 
   function updateTooltipPosition(event) {
     const tooltip = document.getElementById('duration-tooltip');
-    tooltip.style.left = `${event.clientX}px`;
-    tooltip.style.top = `${event.clientY}px`;
+    if (tooltip) {
+        tooltip.style.left = `${event.pageX + 15}px`;
+        tooltip.style.top = `${event.pageY + 15}px`;
+    }
   }
 
   function showCount(data) {
@@ -531,7 +535,9 @@ Promise.all([
       .domain(cols)
       .range(d3.schemeTableau10);
 
-    const tooltip = d3.select("#intraop-tooltip");
+    const tooltip = d3.select("#surgery-tooltip")
+        .style("position", "fixed")
+        .style("z-index", "1000");
 
     // Dedicated group for lines
     const lineLayer = svg.append("g").attr("id", "lines");
@@ -549,7 +555,8 @@ Promise.all([
           .x(d => x(d.hour))
           .y(d => y(d.medianVal))(points)
       )
-      .on("mouseenter", function (event, [name]) {
+      .on("mousemove", function(event, [name]) {
+        // Dim all lines except the hovered one
         lineLayer.selectAll(".line")
           .classed("dimmed", true)
           .classed("highlighted", false);
@@ -559,21 +566,21 @@ Promise.all([
           .classed("highlighted", true)
           .raise();
 
+        // Show and position tooltip
         tooltip
-          .html(`<strong>${legendNames[name][0]}</strong><br>${legendNames[name][1]}`)
-          .style("visibility", "visible");
-      })
-      .on("mousemove", function (event) {
-        tooltip
+          .style("display", "block")
+          .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY + 15) + "px")
-          .style("left", (event.pageX + 15) + "px");
+          .html(`<strong>${legendNames[name][0]}</strong><br>${legendNames[name][1]}`);
       })
-      .on("mouseleave", function () {
+      .on("mouseleave", function() {
+        // Reset line styles
         lineLayer.selectAll(".line")
           .classed("dimmed", false)
           .classed("highlighted", false);
 
-        tooltip.style("visibility", "hidden");
+        // Hide tooltip
+        tooltip.style("display", "none");
       });
     svg.append("g")
       .attr("transform", `translate(0, ${height - margin.bottom})`)
@@ -782,7 +789,17 @@ function renderICUBoxplot(data, containerId = "#visualization") {
   const color = d3.scaleOrdinal(d3.schemeTableau10)
     .domain(stats.map(d => d.surgeryType));
 
-  // Draw boxes
+  // Create tooltip div if it doesn't exist
+  let tooltip = d3.select("#boxplot-tooltip");
+  if (tooltip.empty()) {
+    tooltip = d3.select("body")
+      .append("div")
+      .attr("id", "boxplot-tooltip")
+      .attr("class", "tooltip")
+      .style("display", "none");
+  }
+
+  // Draw boxes with tooltip interaction
   svg.selectAll("rect.box")
     .data(stats)
     .join("rect")
@@ -791,8 +808,25 @@ function renderICUBoxplot(data, containerId = "#visualization") {
     .attr("y", d => Math.min(y(d.q1), y(d.q3)))
     .attr("width", x.bandwidth())
     .attr("height", d => Math.abs(y(d.q1) - y(d.q3)))
-    .attr("fill", d => color(d.surgeryType))
-    .attr("opacity", 0.7);
+    .attr("fill", "steelblue")
+    .attr("opacity", 0.7)
+    .on("mousemove", function(event, d) {
+      tooltip
+        .style("display", "block")
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 28) + "px")
+        .html(`
+          <strong>${d.surgeryType}</strong><br/>
+          Maximum: ${d.max.toFixed(1)} days<br/>
+          75th percentile: ${d.q3.toFixed(1)} days<br/>
+          Median: ${d.median.toFixed(1)} days<br/>
+          25th percentile: ${d.q1.toFixed(1)} days<br/>
+          Minimum: ${d.min.toFixed(1)} days
+        `);
+    })
+    .on("mouseleave", function() {
+      tooltip.style("display", "none");
+    });
 
   // Draw median lines
   svg.selectAll("line.median")
@@ -884,25 +918,6 @@ function renderICUBoxplot(data, containerId = "#visualization") {
   .attr("height", d => Math.abs(y(d.q1) - y(d.q3)))
   .attr("fill", "steelblue")
   .attr("opacity", 0.7);
-
-
-  // Optional: tooltip setup for boxes (like renderIntraop)
-  const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("visibility", "hidden")
-    .style("background", "#eee")
-    .style("padding", "6px")
-    .style("border-radius", "4px")
-    .style("font-size", "12px")
-    .style("pointer-events", "none")
-    .on("mousemove", (event) => {
-      tooltip.style("top", (event.pageY + 15) + "px")
-             .style("left", (event.pageX + 15) + "px");
-    })
-    .on("mouseleave", () => {
-      tooltip.style("visibility", "hidden");
-    });
 }
 
 

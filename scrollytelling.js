@@ -1,5 +1,6 @@
 // Visualization state and data
 let currentStep = 1;
+let currentData = null;
 const visualizations = {
   1: createPreOpViz,
   2: createSurgeryViz,
@@ -74,38 +75,88 @@ function createOutcomesViz() {
      .html('Outcomes Visualization<br>(Placeholder)');
 }
 
-// Initialize first visualization
-createAdmissionViz();
-
-// Intersection Observer setup
+// Set up intersection observer
 const observerOptions = {
-  root: null,
-  rootMargin: '0px',
-  threshold: 0.5
+    root: null,
+    rootMargin: "0px",
+    threshold: 0.5
 };
 
+// Create observer
 const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const step = parseInt(entry.target.dataset.step);
-      if (step !== currentStep) {
-        // Remove active class from all sections
-        document.querySelectorAll('.scroll-section').forEach(section => {
-          section.classList.remove('active');
-        });
-        
-        // Add active class to current section
-        entry.target.classList.add('active');
-        
-        // Update visualization
-        currentStep = step;
-        visualizations[step]();
-      }
-    }
-  });
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const step = parseInt(entry.target.dataset.step);
+            if (step !== currentStep) {
+                currentStep = step;
+                updateVisualization(step);
+            }
+        }
+    });
 }, observerOptions);
 
+// Function to handle tooltip updates
+function updateTooltip(event, data, tooltipId = "#visualization-tooltip") {
+    const tooltip = d3.select(tooltipId);
+    const bounds = event.target.getBoundingClientRect();
+    
+    tooltip
+        .style("left", `${event.clientX + 10}px`)
+        .style("top", `${event.clientY + 10}px`)
+        .style("display", "block");
+
+    // Update tooltip content based on data
+    if (data) {
+        let content = "";
+        if (data.optype) {
+            content = `<strong>${data.optype}</strong><br>
+                      Average Duration: ${(data.duration || 0).toFixed(2)} hours`;
+        } else if (data.name) {
+            content = `<strong>${data.name}</strong><br>
+                      Value: ${(data.value || 0).toFixed(2)}`;
+        }
+        tooltip.html(content);
+    }
+}
+
+function hideTooltip(tooltipId = "#visualization-tooltip") {
+    d3.select(tooltipId).style("display", "none");
+}
+
+// Function to handle visualization changes
+function updateVisualization(step) {
+    const container = d3.select("#visualization");
+    container.selectAll("*").remove(); // Clear previous visualization
+    
+    switch(step) {
+        case 1:
+            renderPreOpViz();
+            break;
+        case 2:
+            renderSurgeryViz();
+            break;
+        case 3:
+            renderICUViz();
+            break;
+        case 4:
+            renderOutcomesViz();
+            break;
+    }
+}
+
 // Observe all scroll sections
-document.querySelectorAll('.scroll-section').forEach(section => {
-  observer.observe(section);
+document.addEventListener('DOMContentLoaded', () => {
+    // Add tooltip container if it doesn't exist
+    if (!document.querySelector("#visualization-tooltip")) {
+        const tooltipDiv = document.createElement("div");
+        tooltipDiv.id = "visualization-tooltip";
+        tooltipDiv.className = "tooltip";
+        document.body.appendChild(tooltipDiv);
+    }
+
+    const sections = document.querySelectorAll('.scroll-section');
+    sections.forEach(section => observer.observe(section));
+    
+    // Initialize first visualization
+    updateVisualization(1);
 }); 

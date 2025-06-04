@@ -631,9 +631,6 @@ Promise.all([
       .attr("fill", "black");
   }
 
-<<<<<<< Updated upstream
-
-
   
 function renderICUScatter(data) {
   data.forEach(d => {
@@ -741,7 +738,7 @@ const svg = d3.select("#postop-vis")
     tooltip.style.top = `${event.clientY}px`;
   }
 
-=======
+
   // Visualization state and data
   let currentStep = 1;
   const visualizations = {
@@ -911,6 +908,4 @@ const svg = d3.select("#postop-vis")
   document.querySelectorAll('.scroll-section').forEach(section => {
     observer.observe(section);
   }); 
-
->>>>>>> Stashed changes
 });

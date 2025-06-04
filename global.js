@@ -40,6 +40,8 @@ Promise.all([
   let heightRange = d3.extent(cleaned, d => d.height);
   let weightRange = d3.extent(cleaned, d => d.weight);
 
+  let filteredData = cleaned;
+
   d3.select("#age")
   .attr("min", ageRange[0])
   .attr("max", ageRange[1])
@@ -56,7 +58,7 @@ Promise.all([
   showCount(cleaned);
   renderOperationDuration(cleaned);
   renderAnesthesiaDuration(cleaned);
-  renderPrediposeInfo(cleaned);
+  renderPredisposeInfo(cleaned);
   renderPreopInfo(cleaned);
   renderIntraop(cleaned, intraop_surgery, intraop_type);
   renderICUScatter(cleaned);
@@ -118,7 +120,7 @@ Promise.all([
     d3.select("#aneduration_vis").selectAll("*").remove();
     d3.select("#intraop").selectAll("*").remove();
     
-    let filteredData = cleaned;
+    filteredData = cleaned;
 
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
@@ -156,24 +158,38 @@ Promise.all([
     showCount(filteredData);
     renderOperationDuration(filteredData);
     renderAnesthesiaDuration(filteredData)
-    renderPrediposeInfo(filteredData);
+    renderPredisposeInfo(filteredData);
     renderPreopInfo(filteredData);
     renderIntraop(filteredData, intraop_surgery, intraop_type);
   }
 
-  function renderOperationDuration(data) {
+    function renderOperationDuration(data) {
     data.forEach(d => {
       d.op_duration = (d.opend - d.opstart)/3600
     })
-      
+
     avgByOpType = d3.rollups (
         data,
         v => d3.mean(v, (v) => v.op_duration),
         d => d.optype
     );
 
-    const width = 1000;
+    const width = 800;
     const height = 250; 
+
+    const surgeryDescriptions = {
+      'Colorectal': "Focuses on treatment of the colon, rectum, and anus. Procedures range from polyp removal to cancer and inflammatory bowel disease treatment.",
+      'Stomach': "Involves surgical intervention on the stomach, often for ulcers, tumors, or weight-loss procedures such as gastrectomy or gastric bypass.",
+      'Biliary/Pancreas': "Covers operations on the bile ducts, gallbladder, and pancreas, typically for gallstones, pancreatitis, or tumors in the hepatobiliary system.",
+      'Vascular': "Treats disorders of the blood vessels, including procedures to repair aneurysms, clear blockages, or create access for dialysis.",
+      'Major resection': "Involves removal of large or complex tissue sections, in cases of advanced tumors or extensive disease in organs like the liver or intestines.",
+      'Breast': "Surgical treatment of breast conditions, including lumpectomy, mastectomy, or reconstruction, often related to cancer or benign tumors.",
+      'Minor resection': "Refers to smaller-scale removals of tissue, such as partial organ or lesion removal.",
+      'Transplantation': "Involves replacing a diseased organ with a healthy one from a donor, such as liver, kidney, or heart transplants.",
+      'Hepatic': "Targets diseases of the liver, such as resections for tumors, treatment for cirrhosis, or preparation for transplantation.",
+      'Thyroid': "Involves surgery on the thyroid gland, typically for nodules, cancer, or hyperthyroidism, ranging from lobectomy to full thyroidectomy.",
+      'Others': "Includes various procedures that do not fall into standard categories, often unique or highly specialized surgical cases."
+    };
 
     const svg = d3
       .select('#opduration_vis')
@@ -212,17 +228,23 @@ Promise.all([
       .join("rect")
       .attr("class", "rect-duration")
       .attr("x", d => xScale(d[0]))
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(0) - yScale(d[1]))
+      .attr("y", height - margin.bottom)
+      .attr("height", 0)
       .attr("width", xScale.bandwidth())
+      .style("opacity", 0) // set bars invisible for animation
       .on('mouseenter', (event, d) => {
-        renderTooltipContent(d);
+        renderTooltipInfo(d, surgeryDescriptions);
         updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
-      });
+      })
+      .transition() // animate new bars
+      .duration(500) // animation duration
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(0) - yScale(d[1]))
+      .style("opacity", 1);
 
       // Create the axes
     const xAxis = d3.axisBottom(xScale);
@@ -251,27 +273,35 @@ Promise.all([
         .attr("y", -usableArea.left + 10)
         .attr("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Operation Duration (Hours)"); 
+        .text("Avg Operation Duration (Hours)"); 
     }
 
-    function renderTooltipContent(data) {
-    const hours = document.getElementById('hours');
-    hours.textContent = safeToFixed(data[1]);
+    function renderTooltipInfo(data, details) {
+    const info = document.getElementById('duration-tooltip');
+    info.innerHTML = `${safeToFixed(data[1])} <br>
+      ${details[data[0]]}
+    `;
   }
 
   function renderAnesthesiaDuration(data) {
     data.forEach(d => {
       d.ane_duration = (d.aneend - d.anestart)/3600
     })
-      
+
     avgByOpType = d3.rollups (
         data,
         v => d3.mean(v, (v) => v.ane_duration),
         d => d.ane_type
     );
 
-    const width = 1000;
+    const width = 800;
     const height = 250; 
+
+    const aneDescriptions = {
+      'General': 'Leaves patient unconscious and blocks pain throughout the body. Administered through inhalation or IV, typically requiring breathing support. Used for major surgeries',
+      'Spinal': 'Leaves patient awake, but blocks sensation below injection point (typically the lower back). Administered through injection into spinal fluid. Used for c-sections and lower body surgeries',
+      'Sedationalgesia': 'Leaves patient awake but in a relaxed state, with reduced pain sensation. Administered through IV. Used in minor surgery, like dental work or endoscopy'
+    }
 
     const svg = d3
       .select('#aneduration_vis')
@@ -310,17 +340,23 @@ Promise.all([
       .join("rect")
       .attr("class", "rect-duration")
       .attr("x", d => xScale(d[0]))
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(0) - yScale(d[1]))
+      .attr("y", height - margin.bottom)
+      .attr("height", 0)
       .attr("width", xScale.bandwidth())
+      .style("opacity", 0) // set bars invisible for animation
       .on('mouseenter', (event, d) => {
-        renderTooltipContent(d);
+        renderTooltipInfo(d, aneDescriptions);
         updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
       .on('mouseleave', () => {
         updateTooltipVisibility(false);
-      });
+      })
+      .transition() // animate new bars
+      .duration(500) // animation duration
+      .attr("y", d => yScale(d[1]))
+      .attr("height", d => yScale(0) - yScale(d[1]))
+      .style("opacity", 1);
 
       // Create the axes
     const xAxis = d3.axisBottom(xScale);
@@ -349,15 +385,10 @@ Promise.all([
         .attr("y", -usableArea.left + 10)
         .attr("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Anesthesia Duration (Hours)"); 
-    }
-
-    function renderTooltipContent(data) {
-    const hours = document.getElementById('hours');
-    hours.textContent = safeToFixed(data[1]);
+        .text("Avg Anesthesia Duration (Hours)"); 
   }
 
-  function renderPrediposeInfo(data) {
+  function renderPredisposeInfo(data) {
 
     const dl = d3.select('#predispose').append('dl').attr('class', 'predispose');
 
@@ -471,7 +502,7 @@ Promise.all([
       medianData.set(name, medianPoints);
     }
 
-    const width = 1075, height = 400;
+    const width = 800, height = 400;
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
     d3.select("#intraop_vis").selectAll("*").remove();
@@ -709,4 +740,176 @@ const svg = d3.select("#postop-vis")
     tooltip.style.top = `${event.clientY}px`;
   }
 
+=======
+  // Visualization state and data
+  let currentStep = 1;
+  const visualizations = {
+    1: createAdmissionViz,
+    2: createPreOpViz,
+    3: createSurgeryViz,
+    4: createICUViz,
+    5: createOutcomesViz
+  };
+
+  // Placeholder visualization functions
+  function createAdmissionViz() {
+    const viz = d3.select('#visualization');
+    viz.html(''); // Clear previous visualization
+    viz.append('h2')
+      .text('Admission Demographics')
+      .style('text-align', 'center');
+    
+    // Placeholder rectangle
+    viz.append('div')
+      .style('width', '80%')
+      .style('height', '60%')
+      .style('margin', '0 auto')
+      .style('background', '#ddd')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('justify-content', 'center')
+      .html('Admission Visualization<br>(Placeholder)');
+  }
+
+  function createPreOpViz() {
+    const viz = d3.select('#visualization');
+    viz.html('');
+    viz.append('h2')
+      .text('Pre-Op Assessment')
+      .style('text-align', 'center');
+    
+    viz.append('h4')
+      .text('Based on your selection, how likely are you to have...?');
+    viz.append('div')
+      .attr('id','predispose');
+    viz.append('h4')
+      .text('What are typical preoperative levels of...?');
+    viz.append('div')
+      .attr('id', 'preop');
+    renderPredisposeInfo(filteredData);
+    renderPreopInfo(filteredData);
+  }
+
+  function createSurgeryViz() {
+    const viz = d3.select('#visualization');
+    viz.html('');
+    viz.append('h2')
+      .text('Surgery Details')
+      .style('text-align', 'center');
+    
+    viz.append('h3')
+      .text('How Long Does Your Surgery Take?');
+    viz.append('div')
+      .attr('id','opduration_vis');
+    viz.append('dl')
+      .attr('id','opduration-tooltip')
+      .attr('class', 'info tooltip')
+      .attr('hidden', true);
+
+    const dl1 = d3.select('#opduration-tooltip');
+    dl1.append('dt')
+      .attr('id', 'hours-label')
+      .text('Hours');
+    dl1.append('dd')
+      .attr('id', 'hours');
+
+    viz.append('h3')
+      .text('How Long Are You Under Anesthesia?');
+    viz.append('div')
+      .attr('id','aneduration_vis');
+    viz.append('dl')
+      .attr('id','aneduration-tooltip')
+      .attr('class', 'info tooltip')
+      .attr('hidden', true);
+
+    const dl2 = d3.select('#aneduration-tooltip');
+    dl2.append('dt')
+      .attr('id', 'hours-label')
+      .text('Hours');
+    dl2.append('dd')
+      .attr('id', 'hours');
+
+    viz.append('div')
+      .attr('id', 'intraop_vis');
+    viz.append('div')
+      .attr('id', 'intraop-tooltip');
+
+    renderOperationDuration(filteredData);
+    renderAnesthesiaDuration(filteredData);
+    renderIntraop(filteredData, intraop_surgery, intraop_type);
+  }
+
+  function createICUViz() {
+    const viz = d3.select('#visualization');
+    viz.html('');
+    viz.append('h2')
+      .text('ICU Recovery Stats')
+      .style('text-align', 'center');
+    
+    viz.append('div')
+      .style('width', '80%')
+      .style('height', '60%')
+      .style('margin', '0 auto')
+      .style('background', '#ddd')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('justify-content', 'center')
+      .html('ICU Visualization<br>(Placeholder)');
+  }
+
+  function createOutcomesViz() {
+    const viz = d3.select('#visualization');
+    viz.html('');
+    viz.append('h2')
+      .text('Patient Outcomes')
+      .style('text-align', 'center');
+    
+    viz.append('div')
+      .style('width', '80%')
+      .style('height', '60%')
+      .style('margin', '0 auto')
+      .style('background', '#ddd')
+      .style('display', 'flex')
+      .style('align-items', 'center')
+      .style('justify-content', 'center')
+      .html('Outcomes Visualization<br>(Placeholder)');
+  }
+
+  // Initialize first visualization
+  createAdmissionViz();
+
+  // Intersection Observer setup
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.6
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const step = parseInt(entry.target.dataset.step);
+        if (step !== currentStep) {
+          // Remove active class from all sections
+          document.querySelectorAll('.scroll-section').forEach(section => {
+            section.classList.remove('active');
+          });
+          
+          // Add active class to current section
+          entry.target.classList.add('active');
+          
+          // Update visualization
+          currentStep = step;
+          visualizations[step]();
+        }
+      }
+    });
+  }, observerOptions);
+
+  // Observe all scroll sections
+  document.querySelectorAll('.scroll-section').forEach(section => {
+    observer.observe(section);
+  }); 
+
+>>>>>>> Stashed changes
 });

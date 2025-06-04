@@ -279,7 +279,7 @@ header h1 {
 
 .sticky-graphic {
     position: sticky;
-    width: 50%;
+    width: 60%;
     height: 80vh;
     top: calc(50vh - 40vh);
     margin-top: 2rem;
@@ -296,7 +296,7 @@ header h1 {
 }
 
 .scroll-sections {
-    width: 35%;
+    width: 30%;
     padding-top: calc(50vh - 40vh);
     padding-bottom: 50vh;
     margin-left: 2rem;
@@ -409,7 +409,6 @@ header h1 {
 /* Visualization containers */
 #viz, #opduration_vis, #aneduration_vis, #predispose, #preop {
     width: 100%;
-    min-height: 300px;
     margin: 2rem 0;
 }
 

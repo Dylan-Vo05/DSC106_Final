@@ -1071,7 +1071,7 @@ function renderICUBoxplot(data, containerId = "#visualization") {
       .text('Days in ICU');
     dl3.append('dd')
       .attr('id', 'icu');
-    renderICUScatter(filteredData);
+    renderICUScatter(cleaned);
   }
 
   function createOutcomesViz() {
@@ -1084,7 +1084,7 @@ function renderICUBoxplot(data, containerId = "#visualization") {
     viz.append('div')
       .attr('id','postop-vis');
 
-    renderICUBoxplot(filteredData);
+    renderICUBoxplot(cleaned);
 
 
   }

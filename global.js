@@ -55,6 +55,7 @@ Promise.all([
   .attr("max", weightRange[1])
 
     // D3 visualization code goes here
+    /*
   showCount(cleaned);
   renderOperationDuration(cleaned);
   renderAnesthesiaDuration(cleaned);
@@ -63,6 +64,8 @@ Promise.all([
   renderIntraop(cleaned, intraop_surgery, intraop_type);
   renderICUScatter(cleaned);
   renderICUBoxplot(cleaned);
+  */
+  createPreOpViz();
 
   d3.select("#toggle-male").on("change", function () {
     if (this.checked) {
@@ -163,10 +166,10 @@ Promise.all([
     renderPredisposeInfo(filteredData);
     renderPreopInfo(filteredData);
     renderIntraop(filteredData, intraop_surgery, intraop_type);
-     renderOutcome(cleaned);
+    renderOutcome(cleaned);
   }
 
-    function renderOperationDuration(data) {
+  function renderOperationDuration(data) {
     data.forEach(d => {
       d.op_duration = (d.opend - d.opstart)/3600
     })
@@ -278,14 +281,14 @@ Promise.all([
         .text("Avg Operation Duration (Hours)"); 
     }
 
-    function renderTooltipInfo(data, details) {
-    const tooltip = document.getElementById('duration-tooltip');
-    tooltip.style.display = 'block';
-    tooltip.innerHTML = `
-        <strong>${data[0]}</strong>
-        <p>${details[data[0]]}</p>
-    `;
-  }
+  function renderTooltipInfo(data, details) {
+  const tooltip = document.getElementById('opduration-tooltip');
+  tooltip.style.display = 'block';  // show
+  tooltip.innerHTML = `
+    <strong>${data[0]}</strong>
+    <p>${details[data[0]]}</p>
+  `;
+}
 
   function renderAnesthesiaDuration(data) {
     data.forEach(d => {
@@ -430,12 +433,11 @@ Promise.all([
     dl.append('dd').text(safeToFixed(d3.mean(data, d => d.preop_k)) + ' mmol/L');
   }
 
-  function updateTooltipVisibility(isVisible) {
-    const tooltip = document.getElementById('duration-tooltip');
-    if (tooltip) {
-        tooltip.style.display = isVisible ? 'block' : 'none';
-    }
-  }
+  
+function updateTooltipVisibility(isVisible) {
+  const tooltip = document.getElementById('opduration-tooltip');
+  tooltip.style.display = isVisible ? 'block' : 'none';
+}
 
   function updateTooltipPosition(event) {
     const tooltip = document.getElementById('duration-tooltip');
@@ -722,7 +724,7 @@ const svg = d3.select("#postop-vis")
     .attr("r", 5)
     .style("fill", "#69b3a2")
     .on('mouseenter', (event, d) => {
-        renderTooltip(d);
+        renderTooltipContent(d);
         updateTooltipVisibility(true);
         updateTooltipPosition(event);
       })
@@ -1005,7 +1007,7 @@ function renderICUBoxplot(data, containerId = "#visualization") {
       .attr('class', 'info tooltip')
       .attr('hidden', true);
 
-    const dl1 = d3.select('#opduration-tooltip');
+    const dl1 = d3.select('#duration-tooltip');
     dl1.append('dt')
       .attr('id', 'hours-label')
       .text('Hours');
@@ -1055,7 +1057,7 @@ function renderICUBoxplot(data, containerId = "#visualization") {
     viz.append('dl')
       .attr('id','icu-tooltip')
       .attr('class', 'info tooltip')
-      .attr('hidden', true);
+      .style('display', 'none');
 
     const dl3 = d3.select('#icu-tooltip');
   dl3.append('dt')
@@ -1086,9 +1088,7 @@ function renderICUBoxplot(data, containerId = "#visualization") {
 
 
   }
-
   // Initialize first visualization
-  createPreOpViz();
 
   // Intersection Observer setup
   const observerOptions = {

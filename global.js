@@ -125,7 +125,7 @@ Promise.all([
     d3.select("#aneduration_vis").selectAll("*").remove();
     d3.select("#intraop").selectAll("*").remove();
     
-    filteredData = cleaned;
+    filteredData = cleaned.filter(d => d.optype === intraop_surgery);
 
     const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
@@ -282,13 +282,13 @@ Promise.all([
     }
 
   function renderTooltipInfo(data, details) {
-  const tooltip = document.getElementById('opduration-tooltip');
-  tooltip.style.display = 'block';  // show
-  tooltip.innerHTML = `
-    <strong>${data[0]}</strong>
-    <p>${details[data[0]]}</p>
-  `;
-}
+    const tooltip = document.getElementById('opduration-tooltip');
+    tooltip.style.display = 'block';  // show
+    tooltip.innerHTML = `
+      <strong>${data[0]}</strong>
+      <p>${details[data[0]]}</p>
+    `;
+  }
 
   function renderAnesthesiaDuration(data) {
     data.forEach(d => {
@@ -698,20 +698,6 @@ const svg = d3.select("#postop-vis")
         .attr("fill", "black")
         .attr("text-anchor", "middle")
         .text("Days Spent in ICU");
-    
-   const surgeryDescriptions = {
-      'Colorectal': "Focuses on treatment of the colon, rectum, and anus. Procedures range from polyp removal to cancer and inflammatory bowel disease treatment.",
-      'Stomach': "Involves surgical intervention on the stomach, often for ulcers, tumors, or weight-loss procedures such as gastrectomy or gastric bypass.",
-      'Biliary/Pancreas': "Covers operations on the bile ducts, gallbladder, and pancreas, typically for gallstones, pancreatitis, or tumors in the hepatobiliary system.",
-      'Vascular': "Treats disorders of the blood vessels, including procedures to repair aneurysms, clear blockages, or create access for dialysis.",
-      'Major resection': "Involves removal of large or complex tissue sections, in cases of advanced tumors or extensive disease in organs like the liver or intestines.",
-      'Breast': "Surgical treatment of breast conditions, including lumpectomy, mastectomy, or reconstruction, often related to cancer or benign tumors.",
-      'Minor resection': "Refers to smaller-scale removals of tissue, such as partial organ or lesion removal.",
-      'Transplantation': "Involves replacing a diseased organ with a healthy one from a donor, such as liver, kidney, or heart transplants.",
-      'Hepatic': "Targets diseases of the liver, such as resections for tumors, treatment for cirrhosis, or preparation for transplantation.",
-      'Thyroid': "Involves surgery on the thyroid gland, typically for nodules, cancer, or hyperthyroidism, ranging from lobectomy to full thyroidectomy.",
-      'Others': "Includes various procedures that do not fall into standard categories, often unique or highly specialized surgical cases."
-    };
 
   // Add dots
   svg.append('g')
@@ -1085,8 +1071,6 @@ function renderICUBoxplot(data, containerId = "#visualization") {
       .attr('id','postop-vis');
 
     renderICUBoxplot(cleaned);
-
-
   }
   // Initialize first visualization
 

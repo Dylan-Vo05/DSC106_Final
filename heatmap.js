@@ -118,6 +118,17 @@ export function renderHeatmapFromStaticCounts() {
   
       const max = Math.max(...Object.values(data));
       circles = [];
+
+      // Update selection indicator
+      const indicator = document.getElementById('selection-indicator');
+      if (window.selectedSurgeryTypes && window.selectedSurgeryTypes.size > 0) {
+        const surgeryList = Array.from(window.selectedSurgeryTypes).join(', ');
+        indicator.textContent = `Selected: ${surgeryList}`;
+        indicator.classList.add('active');
+      } else {
+        indicator.textContent = 'Click on regions to select surgery types';
+        indicator.classList.remove('active');
+      }
   
       // Create circles array
       Object.entries(data).forEach(([label, count]) => {
@@ -147,12 +158,34 @@ export function renderHeatmapFromStaticCounts() {
         ctx.beginPath();
         ctx.arc(circle.x, circle.y, circle.actualRadius, 0, 2 * Math.PI);
         
+        const isSelected = window.selectedSurgeryTypes && window.selectedSurgeryTypes.has(circle.label);
+        const isDimmed = window.selectedSurgeryTypes && window.selectedSurgeryTypes.size > 0 && !isSelected;
+        
         if (circle.label === "Others") {
-          ctx.fillStyle = "rgba(0, 128, 255, 0.4)";
-          ctx.strokeStyle = "rgba(0, 100, 200, 0.7)";
+          ctx.fillStyle = isDimmed ? 
+            "rgba(0, 128, 255, 0.1)" : 
+            "rgba(0, 128, 255, 0.4)";
+          ctx.strokeStyle = isDimmed ? 
+            "rgba(0, 100, 200, 0.2)" : 
+            "rgba(0, 100, 200, 0.7)";
         } else {
-          ctx.fillStyle = "rgba(255, 0, 0, 0.4)";
-          ctx.strokeStyle = "rgba(200, 0, 0, 0.7)";
+          ctx.fillStyle = isDimmed ? 
+            "rgba(255, 0, 0, 0.1)" : 
+            "rgba(255, 0, 0, 0.4)";
+          ctx.strokeStyle = isDimmed ? 
+            "rgba(200, 0, 0, 0.2)" : 
+            "rgba(200, 0, 0, 0.7)";
+        }
+        
+        if (isSelected) {
+          ctx.lineWidth = 3;
+          ctx.setLineDash([]);
+        } else if (isDimmed) {
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2, 2]);
+        } else {
+          ctx.lineWidth = 2;
+          ctx.setLineDash([]);
         }
         
         ctx.fill();
@@ -235,11 +268,22 @@ export function renderHeatmapFromStaticCounts() {
       const my = (event.clientY - rect.top) * scaleY;
   
       const clicked = findHoveredCircle(mx, my);
-  
+      
       if (clicked) {
-        modalTitle.textContent = clicked.label;
-        modalDescription.textContent = surgeryDescriptions[clicked.label];
-        modal.classList.add('show');
+        window.handleSurgerySelection(clicked.label);
+        
+        // Visual feedback for selection
+        Object.keys(currentScales).forEach(label => {
+          if (!window.selectedSurgeryTypes || window.selectedSurgeryTypes.size === 0) {
+            currentScales[label].target = 1;
+          } else {
+            currentScales[label].target = window.selectedSurgeryTypes.has(label) ? HOVER_SCALE : 0.6;
+          }
+        });
+
+        if (!isAnimating) {
+          requestAnimationFrame(drawHeatmap);
+        }
       }
     }
 

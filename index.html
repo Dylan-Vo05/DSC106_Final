@@ -18,9 +18,10 @@
 
   <section class="introduction">
     <!-- <h2>Understanding Your Surgery Experience</h2> -->
-    <p>Every surgery has a story. From when a patient walks in, to what happens in the OR, to how they recover afterward.</p>
-    <p>With data from over 6,000 real surgeries, we break down what happens at each step: prep, the operation itself, and recovery. We show you how different factors like age, gender, and health status affect the experience and what different types of surgeries people undergo.</p>
-    <p>Scroll down to explore the full experience and see what the numbers reveal about what really happens during surgery. Use the filters in the bottom right to find cases from patients similar to you.</p>
+    <p>For medical students, choosing a surgical specialty is one of the most crucial decisions in their career path. Each type of surgery presents its own unique challenges, required skills, and patient care patterns.</p>
+    <p>Using data from over 6,000 real surgeries, we break down the key characteristics of different surgical specialties. From the typical duration of procedures to ICU requirements, this visualization helps you understand what your daily life might look like in each specialty.</p>
+    <p>Explore how different surgical paths vary in complexity, time demands, and patient care requirements. Use the filters to focus on specific patient demographics and see how they influence surgical decisions and outcomes.</p>
+    <div id="selection-indicator" class="selection-indicator"></div>
     <div id="body-container">
       <img src="outline_body.png" id="body-img" />
       <canvas id="overlay"></canvas>
@@ -29,6 +30,7 @@
   </section>
 
   <!-- Collapsible Filter Panel -->
+  <!-- 
   <div class="filter-panel" id="filterPanel">
     <div class="filter-content">
       <h4>Filters</h4>
@@ -53,6 +55,7 @@
       <i class="fas fa-filter"></i>
     </button>
   </div>
+  -->
 
   <!-- Surgery Info Modal -->
   <div id="surgery-modal" class="modal">
@@ -64,7 +67,7 @@
   </div>
 
   <!-- Backdrop for filter panel -->
-  <div class="filter-backdrop" id="filterBackdrop"></div>
+  <!-- <div class="filter-backdrop" id="filterBackdrop"></div> -->
 
   <!-- Scrollytelling Section -->
   <div class="scroll-container">
@@ -86,27 +89,7 @@
       <section class="scroll-section" data-step="2">
         <div class="step-content">
           <h3>Surgery</h3>
-          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts. As your body undergoes surgery, various compounds change and shift, and lets see how. </p>
-          <p><label>Pick a kind of surgery </label>
-            <select id = 'surgery-drop'>
-              <option value = 'Colorectal'>Colorectal</option>
-              <option value = 'Stomach'>Stomach</option>
-              <option value = 'Biliary/Pancreas'>Biliary/Pancreas</option>
-              <option value = 'Vascular'>Vascular</option>
-              <option value = 'Major resection'>Major resection</option>
-              <option value = 'Breast'>Breast</option>
-              <option value = 'Minor resection'>Minor resection</option>
-              <option value = 'Transplantation'>Transplantation</option>
-              <option value = 'Hepatic'>Hepatic</option>
-              <option value = 'Thyroid'>Thyroid</option>
-              <option value = 'Others'>Others</option>
-            </select>
-            <label> and what you would like to see </label>
-            <select id = 'intraop-type'>
-              <option value = 'Cell Count'>Cell Count</option>
-              <option value = 'Metabolite Levels'>Metabolite Levels</option>
-              <option value = 'Electrolyte Levels'>Electrolyte Levels</option>
-            </select></p>
+          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts. As your body undergoes surgery, various compounds change and shift.</p>
         </div>
       </section>
 
@@ -117,21 +100,15 @@
         </div>
       </section>
 
-      <section class="scroll-section" data-step="4">
-        <div class="step-content">
-          <h3>Outcomes</h3>
-          <p>Most patients safely recover, although a small minority were unable to. While most can return home soon, some intensive surgeries, like transplants and resections, require a longer recovery period.</p>
-        </div>
-      </section>
-
       
     </div>
   </div>
 
   <section class = 'conclusion'>
-    <p>Surgery is more than just a single moment; it's a complex process shaped by dozens of unseen variables and many different types that are not commonly talked about.
-      By visualizing it step-by-step, we can better understand how these pieces fit together and understand real cases without any extremely complex data or scary visuals.
-      </p>
+    <p>As you've seen, each surgical specialty has its own distinct patterns and demands. From the shorter, more routine procedures in specialties like Breast surgery, 
+    to the complex, lengthy operations in Transplantation and Major resections, each path offers unique challenges and rewards. Consider not just the procedures themselves, 
+    but also the pre-operative preparation requirements and post-operative care commitments when choosing your specialty. This data visualization tool helps you make an 
+    informed decision about your surgical career by showing the real-world patterns and demands of each specialty.</p>
   </section>
 
   <!-- Scripts -->

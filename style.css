@@ -324,12 +324,13 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 #visualization {
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     padding: 1rem;
     box-sizing: border-box;
 }
@@ -339,6 +340,8 @@ header h1 {
     padding-top: 5vh;
     padding-bottom: 50vh;
     margin-left: auto;
+    overflow-y: auto;
+    position: relative;
 }
 
 /* Vein-like connector styles */
@@ -346,15 +349,16 @@ header h1 {
     position: relative;
     min-height: 80vh;
     margin-bottom: 2rem;
+    padding-left: 2rem;
 }
 
 /* Main vessel line */
-.scroll-section::before {
+.scroll-sections::before {
     content: '';
     position: absolute;
     top: 0;
-    bottom: -2rem;
-    left: -20px;
+    bottom: 0;
+    left: 0;
     width: 4px;
     background: linear-gradient(180deg, 
         rgba(231, 76, 60, 0.8) 0%,
@@ -362,11 +366,28 @@ header h1 {
     border-radius: 4px;
 }
 
-/* Remove the extra middle line */
-.scroll-section::after {
-    display: none;
+/* Connecting lines from main vessel to content */
+.step-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
+.step-content::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 50%;
+    width: 2rem;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(231, 76, 60, 0.8);
+    transition: all 0.3s ease;
+}
+
+/* Alternate colors for odd/even sections */
 .scroll-section:nth-child(odd) .step-content::before {
     background: rgba(231, 76, 60, 0.8); /* Red for arteries */
 }
@@ -375,59 +396,29 @@ header h1 {
     background: rgba(52, 152, 219, 0.8); /* Blue for veins */
 }
 
-.scroll-section:last-child::before {
-    bottom: 50%;
-    background: linear-gradient(180deg, 
-        rgba(231, 76, 60, 0.8) 0%,
-        rgba(52, 152, 219, 0.8) 50%);
-}
-
-.scroll-section.active::before {
-    background: linear-gradient(180deg, 
-        rgba(231, 76, 60, 1) 0%,
-        rgba(52, 152, 219, 1) 100%);
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
+/* Active section styles */
+.scroll-section.active .step-content::before {
+    width: 2.5rem;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
 }
 
 .scroll-section.active:nth-child(odd) .step-content::before {
     background: rgba(231, 76, 60, 1);
-    box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
 }
 
 .scroll-section.active:nth-child(even) .step-content::before {
     background: rgba(52, 152, 219, 1);
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);
-}
-
-.step-content {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-left: 1.5rem;
-    position: relative;
-}
-
-.step-content::before {
-    content: '';
-    position: absolute;
-    left: -1.5rem;
-    top: 50%;
-    width: 1.5rem;
-    height: 4px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
 }
 
 .step-content h3 {
-  margin-top: 0;
-  color: #2c3e50;
-  font-size: 1.75rem;
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.75rem;
 }
 
 .step-content p {
-  font-size: 1.15rem;
-  line-height: 1.7;
+    font-size: 1.15rem;
+    line-height: 1.7;
 }
 
 /* Original content section */
@@ -741,4 +732,21 @@ h3 {
 .box:hover {
     opacity: 0.9;
     cursor: pointer;
+}
+
+.selection-indicator {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    color: #2c3e50;
+    font-weight: bold;
+    min-height: 2rem;
+    transition: all 0.3s ease;
+}
+
+.selection-indicator.active {
+    background-color: rgba(255, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 1rem;
 }

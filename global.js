@@ -1,8 +1,11 @@
 Promise.all([
   d3.csv('cases.txt'),
   d3.csv('clean_lab.csv')
+  d3.csv('clean_lab.csv'),
+  d3.csv('trks.txt')
 ])
 .then(function([data1, data2]) {
+.then(function([data1, data2, data3]) {
   cleaned = data1.filter(d => +d.aneend >= +d.anestart).map(d => ({
     ...d,
     age: +d.age,
@@ -27,6 +30,13 @@ Promise.all([
     result: +d.result,
     hour: +d.hour,
     pct_change: +d.pct_change
+  }))
+
+  tracks = data3.map(d => ({
+    ...d,
+    caseid: +d.caseid,
+    tname: d.tname,
+    tid: +d.tid
   }))
 
   let age = -1;
@@ -651,6 +661,162 @@ Promise.all([
       .attr("font-size", 12)
       .attr("fill", "black");
   }
+
+function machineCount(tracks, data) {
+  // Map caseid → optype from case metadata
+  const caseMap = new Map(data.map(d => [+d.caseid, d.optype]));
+
+  // Filter and clean track data to only those with a known optype
+  const filteredTracks = tracks.filter(d => caseMap.has(+d.caseid));
+
+  // Group tracks by caseid to count unique machines per case
+  const caseMachineCounts = d3.rollups(
+    filteredTracks,
+    v => {
+      const uniqueMachines = new Set(
+        v.map(d => {
+          const prefix = d.tname?.split("/")?.[0] || "";
+          return prefix.trim();
+        }).filter(Boolean)
+      );
+      return uniqueMachines.size;
+    },
+    d => +d.caseid
+  );
+
+  // Create array of { optype, machineCount } with trimmed optype
+  const countsByOp = caseMachineCounts.map(([caseid, count]) => {
+    let optype = caseMap.get(caseid) || "Unknown";
+    optype = optype.trim(); // trim whitespace
+    return { optype, count };
+  });
+
+  // Group by optype and compute average count
+  let avgByOpType = d3.rollups(
+    countsByOp,
+    v => d3.mean(v, d => d.count),
+    d => d.optype
+  ).map(([optype, avg]) => ({ optype, avg }));
+
+  // FILTER by selected surgery types if set
+  if (window.selectedSurgeryTypes && window.selectedSurgeryTypes.size > 0) {
+    avgByOpType = avgByOpType.filter(d => window.selectedSurgeryTypes.has(d.optype));
+  }
+
+  const optypes = [
+    'Colorectal',
+    'Stomach',
+    'Biliary/Pancreas',
+    'Vascular',
+    'Major resection',
+    'Breast',
+    'Minor resection',
+    'Transplantation',
+    'Hepatic',
+    'Thyroid',
+    'Others'
+  ];
+  const colorScale = d3.scaleOrdinal()
+    .domain(optypes)
+    .range(d3.schemeTableau10);
+
+  // Debug logs
+  console.log("Unique optypes:", [...new Set(avgByOpType.map(d => d.optype))]);
+  avgByOpType.forEach(d => {
+    console.log(`optype: "${d.optype}", color: ${colorScale(d.optype)}`);
+  });
+
+  // Dimensions & margins
+  const width = 800;
+  const height = 300;
+  const margin = { top: 40, right: 20, bottom: 80, left: 60 };
+
+  
+
+  const container = d3.select("#machines");
+  container.selectAll("*").remove(); // Clear container
+  const svg = container.append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const x = d3.scaleBand()
+    .domain(avgByOpType.map(d => d.optype))
+    .range([margin.left, width - margin.right])
+    .padding(0.2);
+
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(avgByOpType, d => d.avg) || 1])
+    .nice()
+    .range([height - margin.bottom, margin.top]);
+
+  // Axes
+  svg.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x))
+    .selectAll("text")
+    .attr("transform", "rotate(45)")
+    .style("text-anchor", "start");
+
+  svg.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y));
+
+  // Axis Labels
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .text("Average Number of Machines Used per Operation Type");
+
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", height - 10)
+    .attr("text-anchor", "middle")
+    .text("Operation Type");
+
+  svg.append("text")
+    .attr("x", -height / 2)
+    .attr("y", 15)
+    .attr("transform", "rotate(-90)")
+    .attr("text-anchor", "middle")
+    .text("Avg Unique Machines");
+
+  // Bars, colored by colorScale with fallback gray color
+  svg.selectAll(".bar")
+    .data(avgByOpType)
+    .join("rect")
+    .attr("class", "bar")
+    .attr("x", d => x(d.optype))
+    .attr("y", d => y(d.avg))
+    .attr("width", x.bandwidth())
+    .attr("height", d => y(0) - y(d.avg))
+    .attr("fill", d => colorScale(d.optype) || "#999999");  // fallback color
+
+  // Tooltip
+  const tooltip = d3.select("#machines")
+    .append("div")
+    .style("position", "absolute")
+    .style("visibility", "hidden")
+    .style("background", "#fff")
+    .style("border", "1px solid #ccc")
+    .style("padding", "6px")
+    .style("font-size", "12px")
+    .style("border-radius", "4px");
+
+  svg.selectAll(".bar")
+    .on("mouseover", (event, d) => {
+      tooltip.style("visibility", "visible")
+        .html(`Op Type: ${d.optype}<br>Avg Machines: ${d.avg.toFixed(2)}`);
+    })
+    .on("mousemove", event => {
+      tooltip.style("top", (event.pageY - 30) + "px")
+             .style("left", (event.pageX + 10) + "px");
+    })
+    .on("mouseout", () => tooltip.style("visibility", "hidden"));
+}
+
+
 
   
 function renderICUScatter(data) {
@@ -1337,6 +1503,13 @@ function renderICUBoxplot(data) {
       .attr("text-anchor", "middle")
       .style("font-size", "12px")
       .text("Operation Duration (hours)");
+
+    viz.append('div')
+      .attr('id', 'machines');
+    window.icuColorScale = colorScale;
+
+    machineCount(tracks, filteredData);
+
   }
 
   function createICUViz() {
@@ -1466,6 +1639,7 @@ function renderICUBoxplot(data) {
     // Store the color scale in a global variable so it can be used by renderICUScatter
     window.icuColorScale = colorScale;
     
+    
     renderICUScatter(filteredData);
   }
 
@@ -1481,9 +1655,7 @@ function renderICUBoxplot(data) {
 
     renderICUBoxplot(filteredData);
 
-
   }
-
   // Initialize first visualization
   createPreOpViz();
 
@@ -1492,6 +1664,7 @@ function renderICUBoxplot(data) {
     root: null,
     rootMargin: '0px',
     threshold: 0.6
+    threshold: 0.5
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -1555,6 +1728,7 @@ function renderICUBoxplot(data) {
     filteredData = cleaned;
     
     const checkMale = d3.select("#toggle-male").property("checked");
+    /*const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
     
     if (checkMale) {
@@ -1588,6 +1762,7 @@ function renderICUBoxplot(data) {
             +d.weight <= weight + 0.05 * (weightRange[1] - weightRange[0])
         );
     }
+    */
 
     // Update only the necessary visualizations
     showCount(filteredData);

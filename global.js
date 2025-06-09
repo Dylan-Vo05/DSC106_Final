@@ -1,10 +1,8 @@
 Promise.all([
   d3.csv('cases.txt'),
-  d3.csv('clean_lab.csv')
   d3.csv('clean_lab.csv'),
   d3.csv('trks.txt')
 ])
-.then(function([data1, data2]) {
 .then(function([data1, data2, data3]) {
   cleaned = data1.filter(d => +d.aneend >= +d.anestart).map(d => ({
     ...d,
@@ -1637,7 +1635,6 @@ function renderICUBoxplot(data) {
     }
 
     // Store the color scale in a global variable so it can be used by renderICUScatter
-    window.icuColorScale = colorScale;
     
     
     renderICUScatter(filteredData);
@@ -1663,7 +1660,6 @@ function renderICUBoxplot(data) {
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.6
     threshold: 0.5
   };
 
@@ -1727,7 +1723,6 @@ function renderICUBoxplot(data) {
     // Filter the data
     filteredData = cleaned;
     
-    const checkMale = d3.select("#toggle-male").property("checked");
     /*const checkMale = d3.select("#toggle-male").property("checked");
     const checkFemale = d3.select("#toggle-female").property("checked");
     

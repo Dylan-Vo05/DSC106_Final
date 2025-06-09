@@ -43,10 +43,8 @@ dl.info[hidden]:not(:hover, :focus-within) {
   line-height: 1.5;
   max-width: 300px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 5000;
-  position: absolute;
 }
-/*
+
 .rect-duration:hover {
     fill: #E74C3C;
 }
@@ -55,14 +53,6 @@ dl.info[hidden]:not(:hover, :focus-within) {
     fill: #F1948A;
     transition: fill 0.2s ease;
 }
-
-.bar {
-    fill: #F1948A;
-}
-
-.bar:hover {
-    fill: #E74C3C;
-}*/
 
 .graph-element {
     fill: #F1948A;
@@ -655,7 +645,7 @@ h3 {
 
 /* Adjust surgery section specific styles */
 .scroll-section[data-step="2"] .step-content {
-    max-height: 90vh;
+    max-height: 75vh;
     overflow-y: auto;
 }
 

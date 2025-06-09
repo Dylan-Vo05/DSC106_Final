@@ -23,6 +23,17 @@
     <!--<p>For medical students, choosing a surgical specialty is one of the most crucial decisions in their career path. Each type of surgery presents its own unique challenges, required skills, and patient care patterns.</p>-->
     <p>Using data from over 6,000 real surgeries, we break down the key characteristics of different surgical specialties. From the typical duration of procedures to ICU requirements, this visualization helps you understand what your daily life might look like in each specialty.</p>
     <p>Explore how different surgical paths vary in complexity, time demands, and patient care requirements. Use the filters to focus on specific patient demographics and see how they influence surgical decisions and outcomes.</p>
+      Definitions you might find helpful: Colorectal: "Focuses on treatment of the colon, rectum, and anus. Procedures range from polyp removal to cancer and inflammatory bowel disease treatment.",
+      <br>Stomach: Involves surgical intervention on the stomach, often for ulcers, tumors, or weight-loss procedures such as gastrectomy or gastric bypass.
+      <br>Biliary/Pancreas: Covers operations on the bile ducts, gallbladder, and pancreas, typically for gallstones, pancreatitis, or tumors in the hepatobiliary system.
+      <br>Vascular: Treats disorders of the blood vessels, including procedures to repair aneurysms, clear blockages, or create access for dialysis.
+      <br>Major resection: Involves removal of large or complex tissue sections, in cases of advanced tumors or extensive disease in organs like the liver or intestines.
+      <br>Breast: Surgical treatment of breast conditions, including lumpectomy, mastectomy, or reconstruction, often related to cancer or benign tumors.
+      <br>Minor resection: Refers to smaller-scale removals of tissue, such as partial organ or lesion removal.
+      <br>Transplantation: Involves replacing a diseased organ with a healthy one from a donor, such as liver, kidney, or heart transplants.
+      <br>Hepatic: Targets diseases of the liver, such as resections for tumors, treatment for cirrhosis, or preparation for transplantation.
+      <br>Thyroid: Involves surgery on the thyroid gland, typically for nodules, cancer, or hyperthyroidism, ranging from lobectomy to full thyroidectomy.
+      <br>Others: Includes various procedures that do not fall into standard categories, often unique or highly specialized surgical cases. </p>
     <div id="selection-indicator" class="selection-indicator"></div>
     <div id="body-container">
       <img src="outline_body.png" id="body-img" />
@@ -84,21 +95,35 @@
       <section class="scroll-section" data-step="1">
         <div class="step-content">
           <h3>Pre-Op Assessment</h3>
-          <p>Before surgery begins, doctors run lab tests and assess risk. Low hemoglobin or high ASA can signal danger ahead. Preexisting conditions can also be important determiners of what care you should recieve.</p>
+          <p>Before surgery begins, doctors will run lab tests and assess risk. The following on the right is a summary of the dataset results. Preexisting conditions (like diabetes or hypertension) are also important to note. In this dataset, if you picked anyone at random, you'd have a 30% chance of encountering a surgery patient who has hypertension, and a 10% chance of diabetes.
+            Some definitions you might find helpful: <br>
+       <b>Hemoglobin:</b> Protein in red blood cells that carries oxygen. Low levels (anemia) reduce oxygen delivery; high levels may suggest chronic hypoxia or polycythemia
+         <br><b>Platelets:</b> Cell fragments involved in clotting. Low counts increase bleeding risk and high levels may increase stroke risk or suggest inflammation
+       <br><b>Glucose:</b>Blood sugar level. High levels can indicate diabetes or stress, with low levels (hypoglycemia) causing confusion, seizures, or coma
+       <br><b>Sodium:</b> Regulates fluid balance and nerve communication. Abnormal levels can cause neurological symptoms and are due to improper hydration
+       <br><b>Potassium:</b> Critical for heart rhythm, nerve signals, and muscle function. Extremes can lead to dangerous cardiac arrhythmias
+      
+     
+      <b></b>
+          </p>
         </div>
       </section>
 
       <section class="scroll-section" data-step="2">
         <div class="step-content">
           <h3>Surgery</h3>
-          <p>This is the critical moment. Different surgery types carry different risks and blood loss amounts. As your body undergoes surgery, various compounds change and shift.</p>
+          <p> The biggest thing you might want to know as someone looking into the surgical field is that each surgery operation can fluctate greatly in time, although some cases tend to have more consistent ranges.
+            Of course... this does not necessarily mean the time spent is not worth it (scroll on!).
         </div>
       </section>
 
       <section class="scroll-section" data-step="3">
         <div class="step-content">
           <h3>ICU Recovery</h3>
-          <p>After surgery, some patients go straight home. Others stay in the ICU for days—or longer.</p>
+          <p>After surgery, most patients were able to go straight home. Others stayed in the ICU for days—or longer. Here you can view a comparison of how 
+            long a surgery was to how long the patient stayed in the ICU. Working in the medical field, you will quickly learn that you can't expect the same results for every patient you may encounter.
+            Do not be discouraged, however, because for every outlier case, there are many patients who will experience excellent care and recovery.
+          </p>
         </div>
       </section>
 

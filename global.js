@@ -58,12 +58,12 @@ Promise.all([
 
   // D3 visualization code goes here
   showCount(cleaned);
-  renderOperationDuration(cleaned);
-  renderAnesthesiaDuration(cleaned);
+ // renderOperationDuration(cleaned);
+  // renderAnesthesiaDuration(cleaned);
   renderPredisposeInfo(cleaned);
   renderPreopInfo(cleaned);
-  renderIntraop(cleaned, intraop_surgery, intraop_type);
-  renderICUScatter(cleaned);
+  // renderIntraop(cleaned, intraop_surgery, intraop_type);
+  //renderICUScatter(cleaned);
   renderICUBoxplot(cleaned);
 
   /*
@@ -105,7 +105,7 @@ Promise.all([
     updateFilter();
   });
   */
-
+/*
   d3.select("#surgery-drop").on("input", function () {
     intraop_surgery = d3.select(this).property('value');
     renderIntraop(filteredData, intraop_surgery, intraop_type);
@@ -114,7 +114,7 @@ Promise.all([
   d3.select("#intraop-type").on("input", function () {
     intraop_type = d3.select(this).property('value');
     renderIntraop(filteredData, intraop_surgery, intraop_type);
-  });
+  });*/
 
   /*
   function updateFilter(){
@@ -712,6 +712,7 @@ function renderICUScatter(data) {
       .attr("text-anchor", "middle")
       .text("Days Spent in ICU");
 
+  const tooltip = d3.select("#icu-tooltip");
   // Add dots
   svg.append('g')
     .selectAll("dot")
@@ -733,15 +734,16 @@ function renderICUScatter(data) {
       .style("stroke", d => d3.color(window.icuColorScale(d.optype)).darker(0.5))
       .style("stroke-width", 1)
       .on('mouseenter', (event, d) => {
+        console.log("Hovered:", d);
         d3.select(event.target)
           .transition()
           .duration(150)
           .attr("r", 7)
           .style("opacity", 1);
         
-        const tooltip = d3.select("#icu-tooltip");
         tooltip
           .style("display", "block")
+          .style('position', 'absolute')
           .style("left", (event.pageX + 10) + "px")
           .style("top", (event.pageY - 10) + "px")
           .html(`
@@ -760,7 +762,7 @@ function renderICUScatter(data) {
             return window.selectedSurgeryTypes.has(d.optype) ? 0.7 : 0;
           });
         
-        d3.select("#icu-tooltip").style("display", "none");
+        tooltip.style("display", "none");
       });
 }
 
@@ -899,7 +901,7 @@ function renderICUBoxplot(data) {
     .text("ICU Stay Duration by Surgery Type");
 }
 
-
+/*
   function renderTooltipContent(data) {
     const hours = document.getElementById('hours');
     hours.textContent = data.op_duration
@@ -916,7 +918,7 @@ function renderICUBoxplot(data) {
     const tooltip = document.getElementById('icu-tooltip');
     tooltip.style.left = `${event.clientX}px`;
     tooltip.style.top = `${event.clientY}px`;
-  }
+  }*/
 
 
   // Visualization state and data
@@ -925,7 +927,7 @@ function renderICUBoxplot(data) {
     1: createPreOpViz,
     2: createSurgeryViz,
     3: createICUViz,
-    4: createOutcomesViz
+    //4: createOutcomesViz
   };
   /*
   // Placeholder visualization functions
@@ -1149,7 +1151,7 @@ function renderICUBoxplot(data) {
         .append("div")
         .attr("id", "duration-tooltip")
         .attr("class", "tooltip")
-        .style("display", "none")
+        .style("display", "block")
         .style("position", "absolute")
         .style("background", "rgba(255, 255, 255, 0.95)")
         .style("padding", "10px")
@@ -1190,16 +1192,21 @@ function renderICUBoxplot(data) {
       .attr("stroke-width", 1)
       .attr("rx", 2) // Rounded corners
       .on("mouseover", function(event, d) {
+  
         d3.select(this)
           .transition()
           .duration(150)
           .attr("opacity", 1)
           .attr("stroke-width", 2);
           
+        // Position tooltip near the box (fixed, not following mouse)
+  const boxX = x(d.surgeryType) + x.bandwidth() / 2 + margin.left;
+  const boxY = y(d.q3) + margin.top - 10; // a little above the box top
+
         tooltip
           .style("display", "block")
-          .style("left", (event.pageX + 10) + "px")
-          .style("top", (event.pageY - 28) + "px")
+          .style("left", (boxX + 10) + "px")
+          .style("top", (boxY - 28) + "px")
           .html(`
             <div style="font-weight: bold; margin-bottom: 5px; color: ${colorScale(d.surgeryType)}">${d.surgeryType}</div>
             <div style="color: #666;">
@@ -1212,6 +1219,7 @@ function renderICUBoxplot(data) {
               ${d.outliers.length > 0 ? `<div>Outliers: ${d.outliers.length}</div>` : ''}
             </div>
           `);
+          
       })
       .on("mouseleave", function() {
         d3.select(this)
@@ -1327,7 +1335,7 @@ function renderICUBoxplot(data) {
   }
 
   function createICUViz() {
-    console.log('icu viz');
+    //console.log('icu viz');
     const viz = d3.select('#visualization');
     viz.html('');
     viz.append('h2')
@@ -1415,7 +1423,7 @@ function renderICUBoxplot(data) {
         .style('color', '#34495e');
     });
 
-    viz.append('dl')
+    /*viz.append('dl')
       .attr('id','icu-tooltip')
       .attr('class', 'info tooltip')
       .attr('hidden', true);
@@ -1431,7 +1439,24 @@ function renderICUBoxplot(data) {
       .attr('id', 'icu-label')
       .text('Days in ICU');
     dl3.append('dd')
-      .attr('id', 'icu');
+      .attr('id', 'icu');*/
+    
+      // Create tooltip div if it doesn't exist
+    let tooltip = d3.select("#icu-tooltip");
+    if (tooltip.empty()) {
+      tooltip = d3.select("body")
+        .append("div")
+        .attr("id", "icu-tooltip")
+        .attr("class", "tooltip")
+        .style("display", "none")
+        .style("position", "absolute")
+        .style("background", "rgba(255, 255, 255, 0.95)")
+        .style("padding", "10px")
+        .style("border-radius", "4px")
+        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)")
+        .style("font-size", "12px")
+        .style("line-height", "1.4");
+    }
 
     // Store the color scale in a global variable so it can be used by renderICUScatter
     window.icuColorScale = colorScale;

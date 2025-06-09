@@ -719,10 +719,10 @@ function machineCount(tracks, data) {
     .range(d3.schemeTableau10);
 
   // Debug logs
-  console.log("Unique optypes:", [...new Set(avgByOpType.map(d => d.optype))]);
+  /*console.log("Unique optypes:", [...new Set(avgByOpType.map(d => d.optype))]);
   avgByOpType.forEach(d => {
     console.log(`optype: "${d.optype}", color: ${colorScale(d.optype)}`);
-  });
+  });*/
 
   // Dimensions & margins
   const width = 800;
@@ -808,8 +808,8 @@ function machineCount(tracks, data) {
         .html(`Op Type: ${d.optype}<br>Avg Machines: ${d.avg.toFixed(2)}`);
     })
     .on("mousemove", event => {
-      tooltip.style("top", (event.pageY - 30) + "px")
-             .style("left", (event.pageX + 10) + "px");
+      tooltip.style("top", 600 + "px")
+             .style("left", (event.pageX - 400) + "px");
     })
     .on("mouseout", () => tooltip.style("visibility", "hidden"));
 }
@@ -899,7 +899,7 @@ function renderICUScatter(data) {
       .style("stroke-width", 1)
       .on('mouseenter', (event, d) => {
         
-        console.log("Hovered:", d);
+        //console.log("Hovered:", d);
         d3.select(event.target)
           .transition()
           .duration(150)

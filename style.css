@@ -722,7 +722,7 @@ h3 {
     font-size: 16px;
 }*/
 
-.box:hover {
+.box:hover, .bar:hover {
     opacity: 0.9;
     cursor: pointer;
 }

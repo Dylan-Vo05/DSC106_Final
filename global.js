@@ -898,18 +898,23 @@ function renderICUScatter(data) {
       .style("stroke", d => d3.color(window.icuColorScale(d.optype)).darker(0.5))
       .style("stroke-width", 1)
       .on('mouseenter', (event, d) => {
+        
         console.log("Hovered:", d);
         d3.select(event.target)
           .transition()
           .duration(150)
           .attr("r", 7)
           .style("opacity", 1);
+          let pageX = event.pageX;  
+          if (event.pageX - 150 > width - margin.left){
+            pageX = event.pageX - 300 
+          }
         
         tooltip
           .style("display", "block")
           .style('position', 'absolute')
-          .style("left", (event.pageX + 10) + "px")
-          .style("top", (event.pageY - 10) + "px")
+          .style("left", (pageX - 150) + "px")
+          .style("top", 250 + "px")
           .html(`
             <strong>${d.optype}</strong><br>
             Operation Duration: ${d.op_duration.toFixed(1)} hours<br>
@@ -926,7 +931,7 @@ function renderICUScatter(data) {
             return window.selectedSurgeryTypes.has(d.optype) ? 0.7 : 0;
           });
         
-        tooltip.style("display", "none");
+       tooltip.style("display", "none");
       });
 }
 
@@ -1635,7 +1640,7 @@ function renderICUBoxplot(data) {
     }
 
     // Store the color scale in a global variable so it can be used by renderICUScatter
-    
+    window.icuColorScale = colorScale;
     
     renderICUScatter(filteredData);
   }

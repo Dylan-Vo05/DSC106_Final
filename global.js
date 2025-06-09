@@ -1199,13 +1199,18 @@ function renderICUBoxplot(data) {
           .attr("opacity", 1)
           .attr("stroke-width", 2);
           
+        
         // Position tooltip near the box (fixed, not following mouse)
-  const boxX = x(d.surgeryType) + x.bandwidth() / 2 + margin.left;
+  let boxX = x(d.surgeryType) + x.bandwidth() / 2 + margin.left;
   const boxY = y(d.q3) + margin.top - 10; // a little above the box top
+        
+  if (boxX > width - margin.right) {
+          boxX = boxX - 200;
+        }
 
         tooltip
           .style("display", "block")
-          .style("left", (boxX + 10) + "px")
+          .style("left", (boxX - 50) + "px")
           .style("top", (boxY - 28) + "px")
           .html(`
             <div style="font-weight: bold; margin-bottom: 5px; color: ${colorScale(d.surgeryType)}">${d.surgeryType}</div>
